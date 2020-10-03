@@ -34,13 +34,11 @@ def pageSetup(app, canvas):
         try:
             fontType = str(file)
             fontType = fontType[:(len(fontType)-4)]
-            print(fontType)
             fontType.replace(" ", "_")
-            print(fontType)
-            canvas.create_text(app.width/2, count, text=f'{file}', font=fontType)
+            canvas.create_text(10, count, anchor='w', text=f'{file}', font=fontType)
         except Exception as e:
             print(e)
-            # print(f'{fontType}')
+            print(fontType)
         count += app.entryHeight
     
 def redrawAll(app, canvas):
