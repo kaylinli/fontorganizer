@@ -8,55 +8,98 @@ for file in os.listdir(r'C:\Windows\Fonts'):
     if file.endswith(".otf"):
         list.append(file)
 
-# above is code by Bhavesh Mevada, modified slightly
+# above is modified code from Bhavesh Mevada's StackOverflow post
 # https://stackoverflow.com/questions/54832003/how-to-retrieve-actual-font-file-name-in-python
 
 import tkinter as tk
 
-fields = list
-
-pageNum = 0
 fontEntries = 20
+totalPages = len(list) // fontEntries
 
-def fetch(entries):
-    for entry in entries:
-        field = entry[0]
-        text  = entry[1].get()
-        print('%s: "%s"' % (field, text)) 
+class Page(tk.Frame):
+    def __init__(self, title):
+        tk.Frame.__init__(self, bd=1, relief="sunken")
+        self.labels = []
+        for field in title:
+            try:
+                fontType = str(field)
+                fontType = fontType[:(len(fontType)-4)]
+                fontType.replace(" ", "_")
+                self.label = tk.Label(self, text=fontType, font=fontType)
+                # self.label.pack(side="top", fill="both", expand=True)
+                self.label.pack()
+                self.labels.append(self.label)
+            except Exception as e:
+                print(e)
+                print(field)
+        # self.label.pack()
 
-def changePages(boolean,pageNum):
-    # boolean == 0 means clicked back a page
-    # boolean == 1 means clicked forward a page
-    if boolean == 0 and pageNum != 0:
-        pageNum -= 1
-    if boolean == 1:
-        pageNum += 1
+    def show(self):
+        self.lift()
 
-def makeform(root, fields):
-    entries = []
-    firstEntry = pageNum * fontEntries
-    for field in fields[firstEntry:(firstEntry+fontEntries)]:
-        row = tk.Frame(root)
-        lab = tk.Label(row, width=15, text=field, anchor='w')
-        ent = tk.Entry(row)
-        row.pack(side=tk.TOP, fill=tk.X, padx=5, pady=5)
-        lab.pack(side=tk.LEFT)
-        ent.pack(side=tk.RIGHT, expand=tk.YES, fill=tk.X)
-        entries.append((field, ent))
-    return entries
+class MainView(tk.Frame):
+    def __init__(self, *args, **kwargs):
+        tk.Frame.__init__(self, *args, **kwargs)
 
-if __name__ == '__main__':
+        buttonframe = tk.Frame(self)
+        container = tk.Frame(self)
+
+        buttonframe.pack(side="top", fill="x", expand=False)
+        container.pack(side="top", fill="both", expand=True, padx=2, pady=2)
+
+        next_button = tk.Button(buttonframe, text=" > ", command=self.next_page)
+        prev_button = tk.Button(buttonframe, text=" < ", command=self.prev_page)
+        prev_button.pack(side="left")
+        next_button.pack(side="left")
+
+
+        self.pages = []
+        fields = getFields()
+        totalPages = getTotalPages(root)
+        fontEntries = getFontEntries(root)
+        for pageNum in range(totalPages):
+            firstEntry = pageNum * fontEntries
+            currentFields = fields[firstEntry:(firstEntry+fontEntries)]
+            page = Page(title=currentFields)
+            page.place(in_=container, x=0, y=0, relwidth=1, relheight=1)
+            self.pages.append(page)
+
+        self.pages[0].show()
+
+    def next_page(self):
+        # move the first page to the end of the list, 
+        # then show the first page in the list
+        page = self.pages.pop(0)
+        self.pages.append(page)
+        self.pages[0].show()
+
+    def prev_page(self):
+        # move the last page in the list to the front of the list,
+        # then show the first page in the list.
+        page = self.pages.pop(-1)
+        self.pages.insert(0, page)
+        self.pages[0].show()
+
+def getFields():
+    return list
+
+def getFontEntries(root):
+    fontEntries = root.winfo_height() // 40
+    if fontEntries == 0:
+        fontEntries = 20
+    return fontEntries
+
+def getTotalPages(root):
+    totalPages = len(list) // getFontEntries(root)
+    return totalPages
+
+if __name__ == "__main__":
     root = tk.Tk()
-    ents = makeform(root, fields)
-    root.bind('<Return>', (lambda event, e=ents: fetch(e)))   
-    # b1 = tk.Button(root, text='Show',
-    #               command=(lambda e=ents: fetch(e)))
-    # b2 = tk.Button(root, text='Quit', command=root.quit)
-    b1 = tk.Button(root, text='<', command=(lambda e=ents: changePages(0,pageNum)))
-    b1.pack(side=tk.LEFT, padx=5, pady=5)
-    b2 = tk.Button(root, text='>', command=(lambda e=ents: changePages(1,pageNum)))
-    b2.pack(side=tk.LEFT, padx=5, pady=5)
+    main = MainView(root)
+    # ents = makeform(root, list)
+    # root.bind('<Return>', (lambda event, e=ents: fetch(e)))
+    main.pack(side="top", fill="both", expand=True)
+    root.wm_geometry("400x400")
     root.mainloop()
 
-# above code modified from python course
-# https://www.python-course.eu/tkinter_entry_widgets.php
+#https://stackoverflow.com/questions/47562800/tkinter-navigate-through-pages-with-button
