@@ -1,6 +1,6 @@
 # fontorganizer
 
-A font organizer, designed for usage by comic letterers/typesetters. 
+A font organizer and visualization platform, designed for usage by comic letterers/typesetters. Currently only supported on Windows.
 
 Current features:
 - View different fonts in their corresponding font face

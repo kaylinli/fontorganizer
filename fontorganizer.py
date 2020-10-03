@@ -1,4 +1,3 @@
-# by Bhavesh Mevada https://stackoverflow.com/questions/54832003/how-to-retrieve-actual-font-file-name-in-python
 import os
 from cmu_112_graphics import *
 
@@ -8,6 +7,9 @@ for file in os.listdir(r'C:\Windows\Fonts'):
         list.append(file)
     if file.endswith(".otf"):
         list.append(file)
+
+# above is code by Bhavesh Mevada, modified slightly
+# https://stackoverflow.com/questions/54832003/how-to-retrieve-actual-font-file-name-in-python
 
 print(list)
 
