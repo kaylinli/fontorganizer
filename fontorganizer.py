@@ -58,21 +58,35 @@ class MainView(tk.Frame):
         nextButton = tk.Button(buttonframe, text=" > ", command=self.nextPage)
         prevButton = tk.Button(buttonframe, text=" < ", command=self.prevPage)
         saveButton = tk.Button(buttonframe, text=" Save tags ", command=self.saveTags)
+        tagSearch = tk.Entry()
         prevButton.pack(side="left")
         nextButton.pack(side="left")
         saveButton.pack(side="left")
-
+        tagSearch.pack(side="top")
 
         self.pages = []
-        fields = getFields()
-        totalPages = getTotalPages(root)
-        fontEntries = getFontEntries(root)
-        for pageNum in range(totalPages):
-            firstEntry = pageNum * fontEntries
-            currentFields = fields[firstEntry:(firstEntry+fontEntries)]
-            page = Page(title=currentFields)
-            page.place(in_=container, x=0, y=0, relwidth=1, relheight=1)
-            self.pages.append(page)
+        
+        if tagSearch.get() == "":
+            fields = getFields()
+            totalPages = getTotalPages(root,fields)
+            fontEntries = getFontEntries(root)
+            for pageNum in range(totalPages):
+                firstEntry = pageNum * fontEntries
+                currentFields = fields[firstEntry:(firstEntry+fontEntries)]
+                page = Page(title=currentFields)
+                page.place(in_=container, x=0, y=0, relwidth=1, relheight=1)
+                self.pages.append(page)
+        else:
+            fields = getSearchedFields(tagSearch.get())
+            totalPages = getTotalPages(root,fields)
+            fontEntries = getFontEntries(root)
+            totalPages = len(fields) // getFontEntries(root)
+            for pageNum in range(totalPages):
+                firstEntry = pageNum * fontEntries
+                currentFields = fields[firstEntry:(firstEntry+fontEntries)]
+                page = Page(title=currentFields)
+                page.place(in_=container, x=0, y=0, relwidth=1, relheight=1)
+                self.pages.append(page)
 
         self.pages[0].show()
 
@@ -96,19 +110,28 @@ class MainView(tk.Frame):
             text  = entry[1].get()
             if text != "":
                 print('%s: "%s"' % (field, text))
-                with open('file_path', 'w') as file: 
-                    file.write('%s: "%s"' % (field, text)) 
+                with open('file_path', 'a') as file: 
+                    file.write('%s: "%s" \n' % (field, text)) 
 
 def getFields():
     return list
 
+def getSearchedFields(tag):
+    fields = []
+    with open('file_path') as f:
+        for line in f:
+            if line.find(tag):
+                fontType = line.split(":")
+                fields.append(fontType)
+    return fields
+
 def getFontEntries(root):
     fontEntries = root.winfo_height() // 40
     if fontEntries == 0:
-        fontEntries = 15
+        fontEntries = 14
     return fontEntries
 
-def getTotalPages(root):
+def getTotalPages(root,list):
     totalPages = len(list) // getFontEntries(root)
     return totalPages
 
