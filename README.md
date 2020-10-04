@@ -4,10 +4,10 @@ A font organizer and visualization platform, designed for usage by comic lettere
 
 Current features:
 - View the different fonts installed on your computer in their corresponding font face in a compact manner
+- Tag fonts with custom characteristics, such as Sans Serif, Handwriting, etc.
 
 Future features:
-- Tag fonts with custom characteristics, such as Sans Serif, Handwriting, etc.
-- Sort fonts by characteristics
+- Sort fonts by characteristics/tags
 - Create visualization (in Photoshop file?) grouping fonts with similar characteristics
 
 ## How do I run it?
