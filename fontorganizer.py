@@ -36,7 +36,7 @@ class Page(tk.Frame):
                 self.ent = tk.Entry(self)
                 self.ent.grid(row=rowNum, column=2)
                 # self.ent.pack()
-                # entries.append((fontType, self.ent))
+                entries.append((fontType, self.ent))
             except Exception as e:
                 print(e)
                 print(field)
@@ -96,12 +96,8 @@ class MainView(tk.Frame):
             text  = entry[1].get()
             if text != "":
                 print('%s: "%s"' % (field, text))
-
-# def fetch(entries):
-#     for entry in entries:
-#         field = entry[0]
-#         text  = entry[1].get()
-#         print('%s: "%s"' % (field, text)) 
+                with open('file_path', 'w') as file: 
+                    file.write('%s: "%s"' % (field, text)) 
 
 def getFields():
     return list
@@ -125,4 +121,6 @@ if __name__ == "__main__":
     root.wm_geometry("400x400")
     root.mainloop()
 
-#https://stackoverflow.com/questions/47562800/tkinter-navigate-through-pages-with-button
+# code structure largely based off of the following:
+# https://stackoverflow.com/questions/47562800/tkinter-navigate-through-pages-with-button
+# https://www.python-course.eu/tkinter_entry_widgets.php
