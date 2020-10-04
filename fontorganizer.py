@@ -15,20 +15,28 @@ import tkinter as tk
 
 fontEntries = 20
 totalPages = len(list) // fontEntries
+entries = []
 
 class Page(tk.Frame):
     def __init__(self, title):
         tk.Frame.__init__(self, bd=1, relief="sunken")
         self.labels = []
+        rowNum = 0
         for field in title:
             try:
+                rowNum += 1
                 fontType = str(field)
                 fontType = fontType[:(len(fontType)-4)]
                 fontType.replace(" ", "_")
-                self.label = tk.Label(self, text=fontType, font=fontType)
-                # self.label.pack(side="top", fill="both", expand=True)
-                self.label.pack()
+                self.label = tk.Label(self, text=fontType, font=fontType, anchor='w')
+                # self.label = tk.Label(row, width=15, text=field, anchor='w')
+                # self.label.pack()
+                self.label.grid(row=rowNum, column=1)
                 self.labels.append(self.label)
+                self.ent = tk.Entry(self)
+                self.ent.grid(row=rowNum, column=2)
+                # self.ent.pack()
+                # entries.append((fontType, self.ent))
             except Exception as e:
                 print(e)
                 print(field)
@@ -47,10 +55,12 @@ class MainView(tk.Frame):
         buttonframe.pack(side="top", fill="x", expand=False)
         container.pack(side="top", fill="both", expand=True, padx=2, pady=2)
 
-        next_button = tk.Button(buttonframe, text=" > ", command=self.next_page)
-        prev_button = tk.Button(buttonframe, text=" < ", command=self.prev_page)
-        prev_button.pack(side="left")
-        next_button.pack(side="left")
+        nextButton = tk.Button(buttonframe, text=" > ", command=self.nextPage)
+        prevButton = tk.Button(buttonframe, text=" < ", command=self.prevPage)
+        saveButton = tk.Button(buttonframe, text=" Save tags ", command=self.saveTags)
+        prevButton.pack(side="left")
+        nextButton.pack(side="left")
+        saveButton.pack(side="left")
 
 
         self.pages = []
@@ -66,19 +76,32 @@ class MainView(tk.Frame):
 
         self.pages[0].show()
 
-    def next_page(self):
+    def nextPage(self):
         # move the first page to the end of the list, 
         # then show the first page in the list
         page = self.pages.pop(0)
         self.pages.append(page)
         self.pages[0].show()
 
-    def prev_page(self):
+    def prevPage(self):
         # move the last page in the list to the front of the list,
         # then show the first page in the list.
         page = self.pages.pop(-1)
         self.pages.insert(0, page)
         self.pages[0].show()
+
+    def saveTags(self):
+        for entry in entries:
+            field = entry[0]
+            text  = entry[1].get()
+            if text != "":
+                print('%s: "%s"' % (field, text))
+
+# def fetch(entries):
+#     for entry in entries:
+#         field = entry[0]
+#         text  = entry[1].get()
+#         print('%s: "%s"' % (field, text)) 
 
 def getFields():
     return list
@@ -86,7 +109,7 @@ def getFields():
 def getFontEntries(root):
     fontEntries = root.winfo_height() // 40
     if fontEntries == 0:
-        fontEntries = 20
+        fontEntries = 15
     return fontEntries
 
 def getTotalPages(root):
