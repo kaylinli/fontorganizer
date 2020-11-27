@@ -33,13 +33,16 @@ win32gui.ReleaseDC(hdc, None)
 
 
 def appStarted(app):
-    # y position of where the startEntries
-    app.startEntries = 50
-    # space between entries
-    app.entryHeight = 20
-    app.fontEntries = app.width//20 - 2# number of entries on a page
+    
+    app.startEntries = 70 # y position of where the entries start
+    app.entryHeight = 20 # space between entries
+    app.marginLeft = 10
+    app.headerWidth = 70
+
+    app.fontEntries = (app.width-app.headerWidth)//20 - 2# number of entries on a page
     app.pageNum = 0 # page number starts at 0
     app.totalPages = len(fontNames) // app.fontEntries
+    
 
     # variables for page navigation
     app.forwardButtonX = app.width/2 + 20
@@ -62,23 +65,33 @@ def pageSetup(app, canvas):
     for fontFamily in fontNames[firstEntry:(firstEntry+app.fontEntries)]:
         try:
             fontType = font.Font(family=fontFamily,size=14)
-            canvas.create_text(10, count, anchor='w', text=f'{fontFamily}', font=fontType)
+            canvas.create_text(app.marginLeft, count, anchor='w', text=f'{fontFamily}', font=fontType)
         except Exception as e:
             print(e)
             print(fontFamily)
         count += app.entryHeight
 
 def createNavigationButtons(app,canvas):
+    # TODO: add buttons to jump to a page, or have  |<| |1| |2| ... |20| |>| 
+    # inspo: https://cdn2.vectorstock.com/i/1000x1000/47/91/pagination-bar-page-navigation-web-buttons-vector-22654791.jpg
+    # inspo2: https://cdn4.vectorstock.com/i/1000x1000/47/88/pagination-bar-page-navigation-web-buttons-vector-22654788.jpg
     canvas.create_rectangle(app.forwardButtonX-10, app.forwardButtonY-10, app.forwardButtonX+10,app.forwardButtonY+10)
     canvas.create_rectangle(app.backButtonX-10, app.backButtonY-10, app.backButtonX+10,app.backButtonY+10)
     canvas.create_text(app.forwardButtonX, app.forwardButtonY, text='>')
     canvas.create_text(app.backButtonX, app.backButtonY, text='<')
 
 def createHeader(app,canvas):
-    canvas.create_text(app.width/2, 20, text="Font organizer", font=("Red Hat Display", 24))
+    canvas.create_text(app.marginLeft, 30, text="font tagger", anchor="w", font=("Red Hat Display Medium", 24))
+    inputwidth = 100
+    inputheight = 20
+    x0,x1 = app.marginLeft, app.marginLeft+inputwidth
+    y0,y1 = 55, 55+inputheight
+    canvas.create_rectangle(x0, y0, x1, y1)
+    canvas.create_text(x0+5, y0+3, anchor="nw", text="type tag here")
     
 def redrawAll(app, canvas):
     pageSetup(app, canvas)
+    createHeader(app,canvas)
     createNavigationButtons(app,canvas)
 
 runApp(width = 500, height = 500)
