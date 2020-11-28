@@ -1,18 +1,3 @@
-'''
-import os
-from cmu_112_graphics import *
-
-list = []
-for file in os.listdir(r'C:\Windows\Fonts'):
-    if file.endswith(".ttf"):
-        list.append(file)
-    if file.endswith(".otf"):
-        list.append(file)
-
-# above is code by Bhavesh Mevada, modified slightly
-# https://stackoverflow.com/questions/54832003/how-to-retrieve-actual-font-file-name-in-python
-'''
-
 import win32gui
 from tkinter import font
 import tkinter as tk
@@ -42,6 +27,11 @@ def appStarted(app):
     app.fontEntries = (app.width-app.headerWidth)//20 - 2# number of entries on a page
     app.pageNum = 0 # page number starts at 0
     app.totalPages = len(fontNames) // app.fontEntries
+
+    app.tagInputX = (app.marginLeft, app.marginLeft+100)
+    app.tagInputY = 55, 55+20
+    app.isTypingTag = False
+    app.tagInput = ""
     
 
     # variables for page navigation
@@ -51,6 +41,11 @@ def appStarted(app):
     app.backButtonY = app.height - 10
 
 def mousePressed(app, event):
+    checkForNavigation(app, event)
+    checkForTagInput(app, event)
+
+# checks if navigation buttons are pressed
+def checkForNavigation(app, event):
     if app.forwardButtonX-20 < event.x < app.forwardButtonX+20:
         app.pageNum += 1
     if app.backButtonX-20 < event.x < app.backButtonX+20:
@@ -58,6 +53,16 @@ def mousePressed(app, event):
         if app.pageNum != 0:
             app.pageNum -= 1
     app.pageNum = app.pageNum % app.totalPages
+
+def checkForTagInput(app,event):
+    if app.tagInputX[0] < event.x < app.tagInputX[1] and \
+        app.tagInputY[0] < event.y < app.tagInputY[1]:
+        app.isTypingTag = True
+
+
+def keyPressed(app, event):
+    if isTypingTag:
+        app.tagInput += event.key 
 
 def pageSetup(app, canvas):
     count = app.startEntries + app.entryHeight
@@ -82,10 +87,9 @@ def createNavigationButtons(app,canvas):
 
 def createHeader(app,canvas):
     canvas.create_text(app.marginLeft, 30, text="font tagger", anchor="w", font=("Red Hat Display Medium", 24))
-    inputwidth = 100
-    inputheight = 20
-    x0,x1 = app.marginLeft, app.marginLeft+inputwidth
-    y0,y1 = 55, 55+inputheight
+    
+    x0,x1 = app.tagInputX[0], app.tagInputX[1]
+    y0,y1 = app.tagInputY[0], app.tagInputY[1]
     canvas.create_rectangle(x0, y0, x1, y1)
     canvas.create_text(x0+5, y0+3, anchor="nw", text="type tag here")
     
