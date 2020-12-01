@@ -17,10 +17,10 @@ Model
 
 def initFTvars(app):
     # layout stuff
+    app.marginLeft = 10
     app.headerWidth = 70
     app.startEntries = 70 # y position of where the entries start
     app.entryHeight = 20 # space between entries
-    app.marginLeft = 10
 
     # page stuff
     app.fontEntries = (app.height-app.headerWidth)//20 - 2# number of entries on a page
@@ -28,6 +28,7 @@ def initFTvars(app):
     app.totalPages = len(app.fontNames) // app.fontEntries
 
     # tag input variables
+    app.tagInputCoords = (app.marginLeft+50, 65)
     app.tagInputX = (app.marginLeft, app.marginLeft+100)
     app.tagInputY = 55, 55+20
     app.isTypingTag = False
@@ -50,26 +51,22 @@ def mousePressed(app, event):
 # checks if navigation buttons are pressed
 def checkForNavigation(app, event):
     if util.checkIfClickedButton(event.x, event.y, 
-                app.forwardButtonX-20, app.forwardButtonY-20, 
-                app.forwardButtonX+20, app.forwardButtonY+20):
+                app.forwardButtonX, app.forwardButtonY, 20, 20):
         app.pageNum += 1
     if util.checkIfClickedButton(event.x, event.y, 
-                app.backButtonX-20, app.backButtonY-20, 
-                app.backButtonX+20, app.backButtonY+20):
+                app.backButtonX, app.backButtonY, 20, 20):
         # if app.pageNum != 0: disables back button on 0th page
         app.pageNum -= 1
     app.pageNum = app.pageNum % app.totalPages
 
 def checkForTagInput(app,event):
     if util.checkIfClickedButton(event.x, event.y, 
-                            app.tagInputX[0], app.tagInputY[0], 
-                            app.tagInputX[1], app.tagInputY[1]):
+                    app.tagInputCoords[0],app.tagInputCoords[1], 100, 20):
         app.isTypingTag = True
         app.isTypingTag = True
     else:
         app.isTypingTag = False
     # TODO: check if 'x' button was clicked to clear tag input
-
 
 def keyPressed(app, event):
     if app.isTypingTag:
@@ -124,6 +121,7 @@ def drawTagInputBox(app, canvas):
     canvas.create_rectangle(x0, y0, x1, y1)
     canvas.create_text(x0+10, y0+10, anchor="center", text="×", font=("Red Hat Display", 14))
 
+# draws the entire font tagger page
 def drawFontTaggerUI(app, canvas):
     pageSetup(app, canvas)
     createHeader(app,canvas)

@@ -30,11 +30,15 @@ def appStarted(app):
     app.fontNames = fontNames
     app.onSplashPage = True
     app.onFontTagger = False
+    app.onFontExplorer = False
     
     sp.initSPvars(app)
     ft.initFTvars(app)
 
+
 def mousePressed(app, event):
+    if app.onSplashPage:
+        sp.mousePressed(app, event)
     if app.onFontTagger:
         ft.mousePressed(app, event)
 
