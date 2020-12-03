@@ -25,16 +25,20 @@ from cmu_112_graphics import *
 
 class MyApp(App):
     def appStarted(self):
+        self.fontNames = fontNames
+        self.fontIndex = 0
         self.image = None
         self.hasSerif = False
 
-    def keyPressed(self, event):
-        if (event.key == 'g'):
-            snapshotImage = self.getSnapshot()
-            self.saveSnapshot("n.png")
-            self.fontHasSerif()
-            # self.image = self.scaleImage(snapshotImage, 0.4)
-            
+    def timerFired(self):
+        if self.fontIndex < len(fontNames):
+            self.fontIndex += 1
+        else:
+            self.quit()
+        snapshotImage = self.getSnapshot()
+        self.saveSnapshot("n.png")
+        self.fontHasSerif()
+        # self.image = self.scaleImage(snapshotImage, 0.4)
     
     def fontHasSerif(self):
         filename = "n.png"
@@ -49,7 +53,7 @@ class MyApp(App):
                 l = linesP[i][0]
                 cv.line(grayscaleEdgesImg, (l[0], l[1]), (l[2], l[3]), (0,0,255), 3, cv.LINE_AA)
         else:
-            print("Sans serif and none")
+            print("Sans serif and none", self.fontNames[self.fontIndex])
             return "Sans serif"
         sortlines = linesP
         sortlines = sortlines.tolist()
@@ -71,20 +75,22 @@ class MyApp(App):
                 otherY = y1
                 minIndex = i
         croppedEdges = edges[:, 0:minX]
-
-        croppedImg = cv.cvtColor(croppedEdges, cv.COLOR_GRAY2BGR)
+        try:
+            croppedImg = cv.cvtColor(croppedEdges, cv.COLOR_GRAY2BGR)
+        except:
+            croppedImg = grayscaleEdgesImg
 
         croppedLines = cv.HoughLinesP(croppedEdges, 1, math.pi/180, 10, None, 5, 10)
         
         if croppedLines is None:
-            print("Sans serif")
+            print("Sans serif", self.fontNames[self.fontIndex])
             return "Sans serif"
         else:
             print("Serif")
             return "Serif"
 
     def redrawAll(self, canvas):
-        canvas.create_text(525, 300, text="N", font=("Zilla Slab", 100))
+        canvas.create_text(525, 300, text="N", font=(self.fontNames[self.fontIndex], 100))
 
         # canvas.create_rectangle(50, 100, 250, 500, fill='cyan')
         # if (self.image != None):
