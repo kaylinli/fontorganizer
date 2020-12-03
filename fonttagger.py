@@ -15,117 +15,118 @@ import utility as util
 Model
 '''
 
-def initFTvars(app):
+def initFTvars(self):
     # layout stuff
-    app.marginLeft = 10
-    app.headerWidth = 70
-    app.startEntries = 70 # y position of where the entries start
-    app.entryHeight = 20 # space between entries
+    self.marginLeft = 10
+    self.headerWidth = 70
+    self.startEntries = 70 # y position of where the entries start
+    self.entryHeight = 20 # space between entries
+    self.selectionButton = 20
 
     # page stuff
-    app.fontEntries = (app.height-app.headerWidth)//20 - 2# number of entries on a page
-    app.pageNum = 0 # page number starts at 0
-    app.totalPages = len(app.fontNames) // app.fontEntries
+    self.fontEntries = (self.height-self.headerWidth)//20 - 2# number of entries on a page
+    self.pageNum = 0 # page number starts at 0
+    self.totalPages = len(self.fontNames) // self.fontEntries
 
     # tag input variables
-    app.tagInputCoords = (app.marginLeft+50, 65)
-    app.tagInputX = (app.marginLeft, app.marginLeft+100)
-    app.tagInputY = 55, 55+20
-    app.isTypingTag = False
-    app.tagInput = ""
+    self.tagInputCoords = (self.marginLeft+50, 65)
+    self.tagInputX = (self.marginLeft, self.marginLeft+100)
+    self.tagInputY = 55, 55+20
+    self.isTypingTag = False
+    self.tagInput = ""
     
     # variables for page navigation
-    app.forwardButtonX = app.width/2 + 20
-    app.forwardButtonY = app.height - 10
-    app.backButtonX = app.width/2 - 20
-    app.backButtonY = app.height - 10
+    self.forwardButtonX = self.width/2 + 20
+    self.forwardButtonY = self.height - 10
+    self.backButtonX = self.width/2 - 20
+    self.backButtonY = self.height - 10
 
 '''
 Controller
 '''
 
-def mousePressed(app, event):
-    checkForNavigation(app, event)
-    checkForTagInput(app, event)
+def mousePressed(self, event):
+    checkForNavigation(self, event)
+    checkForTagInput(self, event)
 
 # checks if navigation buttons are pressed
-def checkForNavigation(app, event):
+def checkForNavigation(self, event):
     if util.checkIfClickedButton(event.x, event.y, 
-                app.forwardButtonX, app.forwardButtonY, 20, 20):
-        app.pageNum += 1
+                self.forwardButtonX, self.forwardButtonY, 20, 20):
+        self.pageNum += 1
     if util.checkIfClickedButton(event.x, event.y, 
-                app.backButtonX, app.backButtonY, 20, 20):
-        # if app.pageNum != 0: disables back button on 0th page
-        app.pageNum -= 1
-    app.pageNum = app.pageNum % app.totalPages
+                self.backButtonX, self.backButtonY, 20, 20):
+        # if self.pageNum != 0: disables back button on 0th page
+        self.pageNum -= 1
+    self.pageNum = self.pageNum % self.totalPages
 
-def checkForTagInput(app,event):
+def checkForTagInput(self,event):
     if util.checkIfClickedButton(event.x, event.y, 
-                    app.tagInputCoords[0],app.tagInputCoords[1], 100, 20):
-        app.isTypingTag = True
-        app.isTypingTag = True
+                    self.tagInputCoords[0],self.tagInputCoords[1], 100, 20):
+        self.isTypingTag = True
+        self.isTypingTag = True
     else:
-        app.isTypingTag = False
+        self.isTypingTag = False
     # TODO: check if 'x' button was clicked to clear tag input
 
-def keyPressed(app, event):
-    if app.isTypingTag:
-        app.tagInput += event.key 
+def keyPressed(self, event):
+    if self.isTypingTag:
+        self.tagInput += event.key 
 
 '''
 View
 '''
 
-def pageSetup(app, canvas):
-    count = app.startEntries + app.entryHeight
-    firstEntry = app.pageNum * app.fontEntries
-    for fontFamily in app.fontNames[firstEntry:(firstEntry+app.fontEntries)]:
+def pageSetup(self, canvas):
+    count = self.startEntries + self.entryHeight
+    firstEntry = self.pageNum * self.fontEntries
+    for fontFamily in self.fontNames[firstEntry:(firstEntry+self.fontEntries)]:
         try:
             fontType = font.Font(family=fontFamily,size=14)
-            canvas.create_text(app.marginLeft, count, anchor='w', text=f'{fontFamily}', font=fontType)
+            canvas.create_text(self.marginLeft, count, anchor='w', text=f'{fontFamily}', font=fontType)
         except Exception as e:
             print(e)
             print(fontFamily)
-        count += app.entryHeight
+        count += self.entryHeight
 
-def createNavigationButtons(app,canvas):
+def createNavigationButtons(self,canvas):
     # TODO: add buttons to jump to a page, or have  |<| |1| |2| ... |20| |>| 
     # inspo: https://cdn2.vectorstock.com/i/1000x1000/47/91/pagination-bar-page-navigation-web-buttons-vector-22654791.jpg
     # inspo2: https://cdn4.vectorstock.com/i/1000x1000/47/88/pagination-bar-page-navigation-web-buttons-vector-22654788.jpg
-    canvas.create_rectangle(app.forwardButtonX-10, app.forwardButtonY-10, app.forwardButtonX+10,app.forwardButtonY+10)
-    canvas.create_rectangle(app.backButtonX-10, app.backButtonY-10, app.backButtonX+10,app.backButtonY+10)
-    canvas.create_text(app.forwardButtonX, app.forwardButtonY, text='>')
-    canvas.create_text(app.backButtonX, app.backButtonY, text='<')
+    canvas.create_rectangle(self.forwardButtonX-10, self.forwardButtonY-10, self.forwardButtonX+10,self.forwardButtonY+10)
+    canvas.create_rectangle(self.backButtonX-10, self.backButtonY-10, self.backButtonX+10,self.backButtonY+10)
+    canvas.create_text(self.forwardButtonX, self.forwardButtonY, text='>')
+    canvas.create_text(self.backButtonX, self.backButtonY, text='<')
 
-def createHeader(app, canvas):
-    canvas.create_text(app.marginLeft, 30, text="font tagger", anchor="w", font=("Red Hat Display Medium", 24))
+def createHeader(self, canvas):
+    canvas.create_text(self.marginLeft, 30, text="font tagger", anchor="w", font=("Red Hat Display Medium", 24))
     
-    drawTagInputBox(app, canvas)
+    drawTagInputBox(self, canvas)
 
-def drawTagInputBox(app, canvas):
+def drawTagInputBox(self, canvas):
     # create box
-    x0, x1 = app.tagInputX[0], app.tagInputX[1]
-    y0, y1 = app.tagInputY[0], app.tagInputY[1]
+    x0, x1 = self.tagInputX[0], self.tagInputX[1]
+    y0, y1 = self.tagInputY[0], self.tagInputY[1]
     canvas.create_rectangle(x0, y0, x1, y1)
 
     # create text inside box
     # TODO: make text wrap around if it goes outside box'
-    if app.tagInput == "" and app.isTypingTag == False:
+    if self.tagInput == "" and self.isTypingTag == False:
         canvas.create_text(x0+5, y0+3, anchor="nw", text="type tag here")
-    else: # if app.isTypingTag == True
-        canvas.create_text(x0+5, y0+3, anchor="nw", text=f"{app.tagInput}")
+    else: # if self.isTypingTag == True
+        canvas.create_text(x0+5, y0+3, anchor="nw", text=f"{self.tagInput}")
 
     # create clear button
-    x0, x1 = app.tagInputX[1]+10, app.tagInputX[1]+30
-    y0, y1 = app.tagInputY[0], app.tagInputY[0]+20
+    x0, x1 = self.tagInputX[1]+10, self.tagInputX[1]+30
+    y0, y1 = self.tagInputY[0], self.tagInputY[0]+20
     canvas.create_rectangle(x0, y0, x1, y1)
     canvas.create_text(x0+10, y0+10, anchor="center", text="×", font=("Red Hat Display", 14))
 
 # draws the entire font tagger page
-def drawFontTaggerUI(app, canvas):
-    pageSetup(app, canvas)
-    createHeader(app,canvas)
-    createNavigationButtons(app,canvas)
+def drawFontTaggerUI(self, canvas):
+    pageSetup(self, canvas)
+    createHeader(self,canvas)
+    createNavigationButtons(self,canvas)
 
 '''
 Generic Utility Functions

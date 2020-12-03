@@ -11,6 +11,7 @@ from cmu_112_graphics import *
 # import other files
 import splashpage as sp
 import fonttagger as ft
+import houghtransform as ht
 
 def callback(font, tm, fonttype, names):
     names.append(font.lfFaceName)
@@ -25,33 +26,33 @@ print(fontNames)
 win32gui.ReleaseDC(hdc, None)
 # above code from https://stackoverflow.com/questions/51256688/python-windows-enum-installed-fonts
 
+class MainApp(App):
+    def appStarted(self):
+        self.fontNames = fontNames
+        self.onSplashPage = True
+        self.onFontTagger = False
+        self.onFontExplorer = False
+        
+        sp.initSPvars(self)
+        ft.initFTvars(self)
 
-def appStarted(app):
-    app.fontNames = fontNames
-    app.onSplashPage = True
-    app.onFontTagger = False
-    app.onFontExplorer = False
-    
-    sp.initSPvars(app)
-    ft.initFTvars(app)
+    def mousePressed(self, event):
+        if self.onSplashPage:
+            sp.mousePressed(self, event)
+        if self.onFontTagger:
+            ft.mousePressed(self, event)
+        # ht.runHoughTransform(self)
 
+    def keyPressed(self, event):
+        if self.onFontTagger:
+            ft.keyPressed(self, event)
 
-def mousePressed(app, event):
-    if app.onSplashPage:
-        sp.mousePressed(app, event)
-    if app.onFontTagger:
-        ft.mousePressed(app, event)
+    # TODO: add a clear all tags button
+    # TODO: add a box for searching for a font
+    def redrawAll(self, canvas):
+        if self.onSplashPage:
+            sp.drawSplashPageUI(self, canvas)
+        if self.onFontTagger:
+            ft.drawFontTaggerUI(self, canvas)
 
-def keyPressed(app, event):
-    if app.onFontTagger:
-        ft.keyPressed(app, event)
-
-# TODO: add a clear all tags button
-# TODO: add a box for searching for a font
-def redrawAll(app, canvas):
-    if app.onSplashPage:
-        sp.drawSplashPageUI(app, canvas)
-    if app.onFontTagger:
-        ft.drawFontTaggerUI(app, canvas)
-
-runApp(width = 500, height = 500)
+MainApp(width = 500, height = 500)
