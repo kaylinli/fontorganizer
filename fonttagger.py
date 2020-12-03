@@ -31,11 +31,13 @@ def initFTvars(self):
 
 
     # tag input variables
-    self.tagInputCoords = (self.marginLeft+50, 65)
+    self.tagInputCoords = (self.marginLeft+50, 65) # coords for middle of box
     self.tagInputX = (self.marginLeft, self.marginLeft+100)
     self.tagInputY = 55, 55+20
     self.isTypingTag = False
     self.tagInput = ""
+
+    self.tagButtonCoords = (self.tagInputCoords[0]+60, self.tagInputCoords[1]-10) #coords for top left of box
 
     self.selectionBoxSize = 10
     self.selectedFonts = set()
@@ -69,7 +71,7 @@ def checkForSelectedBoxes(self, event):
     # if they've clicked somewhere within the selected boxes area
     if (self.marginLeft < event.x < self.marginLeft + self.selectionBoxSize) and \
             (self.startEntries < event.y < self.startEntries + self.fontEntries*self.entryHeight):
-        boxIndex = math.floor((event.y - self.startEntries) / self.entryHeight)
+        boxIndex = math.floor((event.y - self.startEntries - self.entryHeight/2) / self.entryHeight)
         boxIndex += self.pageNum * self.fontEntries
         self.selectedFonts.add(self.fontNames[boxIndex])
 
@@ -98,22 +100,25 @@ def pageSetup(self, canvas):
     firstEntry = self.pageNum * self.fontEntries
     for fontFamily in self.fontNames[firstEntry:(firstEntry+self.fontEntries)]:
         try:
-            # prevents issues with spaces in font name
-            fontType = font.Font(family=fontFamily,size=14)
-            # create 10px by 10px selection box
-            canvas.create_rectangle(self.marginLeft,         currentHeight - self.selectionBoxSize/2, 
-                    self.marginLeft + self.selectionBoxSize, currentHeight + self.selectionBoxSize/2)
-            # if the font is selected, add a checkmark
-            if fontFamily in self.selectedFonts:
-                canvas.create_text(self.marginLeft + self.selectionBoxSize/2, 
-                                    currentHeight, text="✓")
-            # create text with font name
-            canvas.create_text(self.entryMarginLeft, currentHeight, anchor='w', 
-                                text=f'{fontFamily}', font=fontType)
+            createEntry(self, canvas, fontFamily, currentHeight)
         except Exception as e:
             print(e)
             print(fontFamily)
         currentHeight += self.entryHeight
+
+def createEntry(self, canvas, fontFamily, currentHeight):
+    # prevents issues with spaces in font name
+    fontType = font.Font(family=fontFamily,size=14)
+    # create 10px by 10px selection box
+    canvas.create_rectangle(self.marginLeft,         currentHeight - self.selectionBoxSize/2, 
+            self.marginLeft + self.selectionBoxSize, currentHeight + self.selectionBoxSize/2)
+    # if the font is selected, add a checkmark
+    if fontFamily in self.selectedFonts:
+        canvas.create_text(self.marginLeft + self.selectionBoxSize/2, 
+                            currentHeight, text="✓")
+    # create text with font name
+    canvas.create_text(self.entryMarginLeft, currentHeight, anchor='w', 
+                        text=f'{fontFamily}', font=fontType)
 
 def createNavigationButtons(self,canvas):
     # TODO: add buttons to jump to a page, or have  |<| |1| |2| ... |20| |>| 
@@ -128,6 +133,7 @@ def createHeader(self, canvas):
     canvas.create_text(self.marginLeft, 30, text="font tagger", anchor="w", font=("Red Hat Display Medium", 24))
     
     drawTagInputBox(self, canvas)
+    drawTagButton(self, canvas)
 
 def drawTagInputBox(self, canvas):
     # create box
@@ -137,24 +143,27 @@ def drawTagInputBox(self, canvas):
 
     # create text inside box
     # TODO: make text wrap around if it goes outside box'
+    # TODO: allow for Backspace, Enter, Left and Right functionality
     if self.tagInput == "" and self.isTypingTag == False:
         canvas.create_text(x0+5, y0+3, anchor="nw", text="type tag here")
     else: # if self.isTypingTag == True
         canvas.create_text(x0+5, y0+3, anchor="nw", text=f"{self.tagInput}")
 
     # create clear button
-    x0, x1 = self.tagInputX[1]+10, self.tagInputX[1]+30
-    y0, y1 = self.tagInputY[0], self.tagInputY[0]+20
+    # x0, x1 = self.tagInputX[1]+10, self.tagInputX[1]+30
+    # y0, y1 = self.tagInputY[0], self.tagInputY[0]+20
+    # canvas.create_rectangle(x0, y0, x1, y1)
+    # canvas.create_text(x0+10, y0+10, anchor="center", text="×", font=("Red Hat Display", 14))
+
+def drawTagButton(self, canvas):
+    x0, x1 = self.tagButtonCoords[0], self.tagButtonCoords[0] + 50
+    y0, y1 = self.tagButtonCoords[1], self.tagButtonCoords[1] + 20
     canvas.create_rectangle(x0, y0, x1, y1)
-    canvas.create_text(x0+10, y0+10, anchor="center", text="×", font=("Red Hat Display", 14))
+    canvas.create_text((x0+x1)/2, (y0+y1)/2, text="tag fonts")
 
 # draws the entire font tagger page
 def drawFontTaggerUI(self, canvas):
     pageSetup(self, canvas)
-    createHeader(self,canvas)
-    createNavigationButtons(self,canvas)
-
-'''
-Generic Utility Functions
-'''
+    createHeader(self, canvas)
+    createNavigationButtons(self, canvas)
 
