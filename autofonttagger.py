@@ -17,30 +17,33 @@ hdc = win32gui.GetDC(None)
 win32gui.EnumFontFamilies(hdc, None, callback, fontNames)
 # print("\n".join(fontnames))
 fontNames = sorted(fontNames)
-print(fontNames)
+# print(fontNames)
 win32gui.ReleaseDC(hdc, None)
 # above code from https://stackoverflow.com/questions/51256688/python-windows-enum-installed-fonts
 
 from cmu_112_graphics import *
 
-class MyApp(App):
+class AutoFontTagger(App):
     def appStarted(self):
         self.fontNames = fontNames
         self.fontIndex = 0
         self.image = None
         self.hasSerif = False
+        self.timerDelay = 2
 
     def timerFired(self):
-        if self.fontIndex < len(fontNames):
+        if self.fontIndex < len(fontNames)-1:
             self.fontIndex += 1
         else:
-            self.quit()
+            App.quit(self)
         snapshotImage = self.getSnapshot()
         self.saveSnapshot("n.png")
         self.fontHasSerif()
         # self.image = self.scaleImage(snapshotImage, 0.4)
     
     def fontHasSerif(self):
+        if self.fontIndex >= len(fontNames):
+            return
         filename = "n.png"
         src = cv.imread(filename, cv.IMREAD_GRAYSCALE)
         edges = cv.Canny(src, 50, 200, None, 3)
@@ -53,8 +56,8 @@ class MyApp(App):
                 l = linesP[i][0]
                 cv.line(grayscaleEdgesImg, (l[0], l[1]), (l[2], l[3]), (0,0,255), 3, cv.LINE_AA)
         else:
-            print("Sans serif and none", self.fontNames[self.fontIndex])
-            return "Sans serif"
+            print("Handwriting", self.fontNames[self.fontIndex])
+            return "Handwriting"
         sortlines = linesP
         sortlines = sortlines.tolist()
 
@@ -86,15 +89,15 @@ class MyApp(App):
             print("Sans serif", self.fontNames[self.fontIndex])
             return "Sans serif"
         else:
-            print("Serif")
+            print("Serif", self.fontNames[self.fontIndex])
             return "Serif"
 
     def redrawAll(self, canvas):
-        canvas.create_text(525, 300, text="N", font=(self.fontNames[self.fontIndex], 100))
+        canvas.create_text(self.width/2, self.width/2, text="N", font=(self.fontNames[self.fontIndex], 100))
 
         # canvas.create_rectangle(50, 100, 250, 500, fill='cyan')
         # if (self.image != None):
         #     canvas.create_image(525, 300, image=ImageTk.PhotoImage(self.image))
         #     
 
-MyApp(width=700, height=600)
+# AutoFontTagger(width=700, height=600)

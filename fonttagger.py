@@ -11,6 +11,7 @@ from cmu_112_graphics import *
 
 # import other files
 import utility as util
+import autofonttagger as at
 
 '''
 Model
@@ -30,6 +31,10 @@ def initFTvars(self):
     self.totalPages = len(self.fontNames) // self.fontEntries
 
 
+    # NOTE: all "coordinate" variables represent the center of the object
+
+
+    # Header Vars
     # tag input variables
     self.tagInputCoords = (self.marginLeft+50, 65) # coords for middle of box
     self.tagInputX = (self.marginLeft, self.marginLeft+100)
@@ -37,7 +42,15 @@ def initFTvars(self):
     self.isTypingTag = False
     self.tagInput = ""
 
-    self.tagButtonCoords = (self.tagInputCoords[0]+60, self.tagInputCoords[1]-10) #coords for top left of box
+    self.tagButtonWidth = 60
+    self.tagButtonHeight = 20
+    self.tagButtonCoords = (self.tagInputX[1]+self.tagButtonWidth/2, 
+                            self.tagInputCoords[1])
+
+    self.autoTagButtonWidth = 60
+    self.autoTagButtonHeight = 20
+    self.autoTagButtonCoords = (self.width - 10 - self.autoTagButtonWidth/2,
+                                self.tagInputCoords[1])
 
     self.selectionBoxSize = 10
     self.selectedFonts = set()
@@ -48,14 +61,45 @@ def initFTvars(self):
     self.backButtonX = self.width/2 - 20
     self.backButtonY = self.height - 10
 
+    self.fontTags = dict()
+    initializeFontTags(self)
+
+def initializeFontTags(self):
+    file = ""
+    try: # if the file doesn't exist, create one
+        # https://pythonexamples.org/python-count-occurrences-of-word-in-text-file/
+        file = open("fonttags.txt", "x")
+        for font in self.fontNames:
+            file.write(f"{font}: \n")
+    except:
+        file = open("fonttags.txt", "r")
+        data = file.read()
+        for line in file:
+            # example line: "Arial: Sans serif, project1"
+            colonIndex = line.find(":")
+            font = line[:colonIndex]
+            tags = line[colonIndex:].split(", ")
+            for tag in tags:
+                self.fontTags[font] += tag
+
+def appStopped(self):
+    # TODO: write the fonts to the txt file!
+    pass
+
 '''
 Controller
 '''
 
 def mousePressed(self, event):
+    # top
     checkForTagInput(self, event)
+    checkForTagButton(self, event)
+    checkForAutoTagButton(self, event)
+    # middle
     checkForSelectedBoxes(self, event)
+    # bottom
     checkForNavigation(self, event)
+    
 
 # checks if user has typed in a tag name
 def checkForTagInput(self,event):
@@ -66,6 +110,36 @@ def checkForTagInput(self,event):
     else:
         self.isTypingTag = False
     # TODO: check if 'x' button was clicked to clear tag input
+
+# check if user is trying to tag selected fonts
+def checkForTagButton(self, event):
+    if util.checkIfClickedButton(event.x, event.y, 
+                    self.tagButtonCoords[0], #cx
+                    self.tagButtonCoords[1], #cy
+                    self.tagButtonWidth, self.tagButtonHeight):
+        print("recognized button click")
+        if self.selectedFonts != set():
+            print("fonts added to selected fonts")
+            for font in self.selectedFonts:
+                self.tagInput = self.tagInput.strip()
+                if font not in self.fontTags:
+                    self.fontTags[font] = [self.tagInput]
+                elif self.tagInput not in self.fontTags[font]:
+                    self.fontTags[font] += [self.tagInput]
+                print(font, self.fontTags[font])
+            # try: # if the file doesn't exist, create one
+            #     f.open("fonttags.txt", "x")
+            # except: # if the file does exist, append
+            #     f.open("fonttags.txt", "a")
+            #     for font in self.selectedFonts:
+            #         f.write("{font}: {self.tagInput}")
+
+def checkForAutoTagButton(self, event):
+    if util.checkIfClickedButton(event.x, event.y, 
+                    self.autoTagButtonCoords[0], #cx
+                    self.autoTagButtonCoords[1], #cy
+                    self.autoTagButtonWidth, self.autoTagButtonWidth):
+        at.AutoFontTagger(width=150, height=150)
 
 def checkForSelectedBoxes(self, event):
     # if they've clicked somewhere within the selected boxes area
@@ -134,6 +208,7 @@ def createHeader(self, canvas):
     
     drawTagInputBox(self, canvas)
     drawTagButton(self, canvas)
+    drawAutoTaggingButton(self, canvas)
 
 def drawTagInputBox(self, canvas):
     # create box
@@ -156,10 +231,16 @@ def drawTagInputBox(self, canvas):
     # canvas.create_text(x0+10, y0+10, anchor="center", text="×", font=("Red Hat Display", 14))
 
 def drawTagButton(self, canvas):
-    x0, x1 = self.tagButtonCoords[0], self.tagButtonCoords[0] + 50
-    y0, y1 = self.tagButtonCoords[1], self.tagButtonCoords[1] + 20
+    x0, x1 = self.tagButtonCoords[0] - self.tagButtonWidth/2, self.tagButtonCoords[0] + self.tagButtonWidth/2
+    y0, y1 = self.tagButtonCoords[1] - self.tagButtonHeight/2, self.tagButtonCoords[1] + self.tagButtonHeight/2
     canvas.create_rectangle(x0, y0, x1, y1)
     canvas.create_text((x0+x1)/2, (y0+y1)/2, text="tag fonts")
+
+def drawAutoTaggingButton(self, canvas):
+    x0, x1 = self.autoTagButtonCoords[0] - self.autoTagButtonWidth/2, self.autoTagButtonCoords[0] + self.autoTagButtonWidth/2
+    y0, y1 = self.autoTagButtonCoords[1] - self.autoTagButtonHeight/2, self.autoTagButtonCoords[1] + self.autoTagButtonHeight/2
+    canvas.create_rectangle(x0, y0, x1, y1)
+    canvas.create_text(self.autoTagButtonCoords[0],self.autoTagButtonCoords[1], text="auto tag fonts")
 
 # draws the entire font tagger page
 def drawFontTaggerUI(self, canvas):

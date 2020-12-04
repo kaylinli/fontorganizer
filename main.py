@@ -11,6 +11,7 @@ from cmu_112_graphics import *
 # import other files
 import splashpage as sp
 import fonttagger as ft
+import fontexplorer as fe
 import houghtransform as ht
 
 def callback(font, tm, fonttype, names):
@@ -20,9 +21,7 @@ def callback(font, tm, fonttype, names):
 fontNames = []
 hdc = win32gui.GetDC(None)
 win32gui.EnumFontFamilies(hdc, None, callback, fontNames)
-# print("\n".join(fontnames))
 fontNames = sorted(fontNames)
-# print(fontNames)
 win32gui.ReleaseDC(hdc, None)
 # above code from https://stackoverflow.com/questions/51256688/python-windows-enum-installed-fonts
 
@@ -35,6 +34,7 @@ class MainApp(App):
         
         sp.initSPvars(self)
         ft.initFTvars(self)
+        fe.initFEvars(self)
 
     def mousePressed(self, event):
         if self.onSplashPage:
@@ -54,5 +54,7 @@ class MainApp(App):
             sp.drawSplashPageUI(self, canvas)
         if self.onFontTagger:
             ft.drawFontTaggerUI(self, canvas)
+        if self.onFontExplorer:
+            fe.drawFontExplorerUI(self, canvas)
 
 MainApp(width = 500, height = 500)
