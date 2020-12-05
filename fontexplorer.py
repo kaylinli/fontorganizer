@@ -52,8 +52,8 @@ def createWidgets(self):
 
         self.widgetStartX += self.widgetWidth + 10
         
-        if self.widgetStartX + self.widgetWidth > self.width and \
-                self.widgetStartY + self.widgetHeight> self.height:
+        if self.widgetStartX + self.widgetWidth >= self.width and \
+                self.widgetStartY + self.widgetHeight >= self.height:
             self.widgetStartX = tempX
             self.widgetStartY = tempY
             return
@@ -69,7 +69,7 @@ def createWidgets(self):
 
 def createTextWidget(self, x0, y0, x1, y1):
     fontIndex = random.randrange(0, len(self.fontNames))
-    self.widgets += [[0, x0, y0, x1, y1, "Click to edit", self.fontNames[fontIndex]], 1]
+    self.widgets += [[0, x0, y0, x1, y1, "Click", self.fontNames[fontIndex], 1]]
 '''
 Controller
 '''
@@ -81,7 +81,7 @@ def checkForSelectedWidget(self, event):
         widget = self.widgets[i]
         # check if within widget bounds
         if widget[1] < event.x < widget[3] and \
-            widget[2] < event.y < widget[4]:
+                widget[2] < event.y < widget[4]:
             self.selectedWidget = i
             return
     # if no widget selected
@@ -90,7 +90,14 @@ def checkForSelectedWidget(self, event):
 
 def keyPressed(self, event):
     if self.selectedWidget != -1:
-        self.widgets[self.selectedWidget][5] += event.key 
+        widgetText = self.widgets[self.selectedWidget][5]
+        if event.key == "Backspace":
+            widgetText = widgetText[:len(widgetText)-1]
+        elif event.key == "Space":
+            widgetText += " "
+        else:
+            widgetText += event.key 
+        self.widgets[self.selectedWidget][5] = widgetText
 '''
 View
 '''
@@ -101,12 +108,22 @@ def drawWidgets(self, canvas):
         wx0, wy0, wx1, wy1 = widget[1], widget[2], widget[3], widget[4]
         canvas.create_rectangle(wx0, wy0, wx1, wy1)
         widgetText = self.widgets[i][5]
-        tx0, ty0, tx1, ty1 = (canvas.bbox(canvas.create_text((x0+x1)/2, (y0+y1)/2, 
-                        text=widgetText, font=(self.widgets[i][6], 15))))
-        if ty1 > wy1:
-             canvas.create_text()
-        canvas.create_text((x0+x1)/2, (y0+y1)/2 + 20, 
-                        text=widgetText, font=(self.widgets[i][6], 15))
+        
+        lineWidth = 15
+        lineX = (wx0+wx1)/2
+        lineY = (wy0+wy1)/2 - (widget[7]/2)*lineWidth
+        index = 0
+        lineLength = len(widgetText)
+        # create lines of text in widget
+        for line in range(widget[7]):
+            lineText = widgetText[index:lineLength]
+            lineY += lineWidth
+            tx0, ty0, tx1, ty1 = (canvas.bbox(canvas.create_text(lineX, lineY, 
+                            text=lineText, font=(self.widgets[i][6], 15))))
+            if tx1 > wx1:
+                lineLength -= 1
+                index += lineLength
+                widget[7] += 1
         # canvas.create_oval(x0,y0,x1,y1)
         # drawTextWidget(self, canvas, i, widget[1], widget[1], )
 

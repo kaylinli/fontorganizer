@@ -47,9 +47,14 @@ def initFTvars(self):
     self.tagButtonCoords = (self.tagInputX[1]+self.tagButtonWidth/2, 
                             self.tagInputCoords[1])
 
-    self.autoTagButtonWidth = 60
+    self.autoTagButtonWidth = 90
     self.autoTagButtonHeight = 20
     self.autoTagButtonCoords = (self.width - 10 - self.autoTagButtonWidth/2,
+                                self.tagInputCoords[1]/3)
+
+    self.searchButtonWidth = 90
+    self.searchButtonHeight = 20
+    self.searchButtonCoords = (self.width - 10 - self.searchButtonWidth/2, 
                                 self.tagInputCoords[1])
 
     self.selectionBoxSize = 10
@@ -62,7 +67,7 @@ def initFTvars(self):
     self.backButtonY = self.height - 10
 
     self.fontTags = dict()
-    initializeFontTags(self)
+    # initializeFontTags(self)
 
 def initializeFontTags(self):
     file = ""
@@ -83,8 +88,12 @@ def initializeFontTags(self):
                 self.fontTags[font] += tag
 
 def appStopped(self):
-    # TODO: write the fonts to the txt file!
-    pass
+    file = open("fonttags.txt", "w")
+    for font in self.fontTags:
+        file.write(f"{font}: ")
+        for tag in font:
+            file.write(tag, " ,")
+
 
 '''
 Controller
@@ -147,7 +156,11 @@ def checkForSelectedBoxes(self, event):
             (self.startEntries < event.y < self.startEntries + self.fontEntries*self.entryHeight):
         boxIndex = math.floor((event.y - self.startEntries - self.entryHeight/2) / self.entryHeight)
         boxIndex += self.pageNum * self.fontEntries
-        self.selectedFonts.add(self.fontNames[boxIndex])
+        font = self.fontNames[boxIndex]
+        if font in self.selectedFonts:
+            self.selectedFonts.remove(font)
+        else:
+            self.selectedFonts.add(font)
 
 # checks if navigation buttons are pressed
 def checkForNavigation(self, event):
@@ -162,7 +175,13 @@ def checkForNavigation(self, event):
 
 def keyPressed(self, event):
     if self.isTypingTag:
-        self.tagInput += event.key 
+        if event.key == "Backspace":
+            self.tagInput = self.tagInput[:len(self.tagInput)-1]
+        elif event.key == "Space":
+            self.tagInput += " "
+        else:
+            self.tagInput += event.key 
+
 
 '''
 View
@@ -191,8 +210,13 @@ def createEntry(self, canvas, fontFamily, currentHeight):
         canvas.create_text(self.marginLeft + self.selectionBoxSize/2, 
                             currentHeight, text="✓")
     # create text with font name
-    canvas.create_text(self.entryMarginLeft, currentHeight, anchor='w', 
-                        text=f'{fontFamily}', font=fontType)
+    tx0, ty0, tx1, ty1 = canvas.bbox(canvas.create_text(self.entryMarginLeft, currentHeight, anchor='w', 
+                        text=f'{fontFamily}', font=fontType))
+    if fontFamily in self.fontTags:
+        for i in range(len(self.fontTags[fontFamily])):
+            tag = self.fontTags[fontFamily][i]
+            canvas.create_text(tx1 + 10 + 50*i, currentHeight, anchor='w', 
+                        text=tag)
 
 def createNavigationButtons(self,canvas):
     # TODO: add buttons to jump to a page, or have  |<| |1| |2| ... |20| |>| 
@@ -209,6 +233,7 @@ def createHeader(self, canvas):
     drawTagInputBox(self, canvas)
     drawTagButton(self, canvas)
     drawAutoTaggingButton(self, canvas)
+    drawSearchButton(self, canvas)
 
 def drawTagInputBox(self, canvas):
     # create box
@@ -231,16 +256,20 @@ def drawTagInputBox(self, canvas):
     # canvas.create_text(x0+10, y0+10, anchor="center", text="×", font=("Red Hat Display", 14))
 
 def drawTagButton(self, canvas):
-    x0, x1 = self.tagButtonCoords[0] - self.tagButtonWidth/2, self.tagButtonCoords[0] + self.tagButtonWidth/2
-    y0, y1 = self.tagButtonCoords[1] - self.tagButtonHeight/2, self.tagButtonCoords[1] + self.tagButtonHeight/2
-    canvas.create_rectangle(x0, y0, x1, y1)
-    canvas.create_text((x0+x1)/2, (y0+y1)/2, text="tag fonts")
+    drawButton(self, canvas, self.tagButtonCoords, self.tagButtonWidth, self.tagButtonHeight, "tag fonts")
 
 def drawAutoTaggingButton(self, canvas):
-    x0, x1 = self.autoTagButtonCoords[0] - self.autoTagButtonWidth/2, self.autoTagButtonCoords[0] + self.autoTagButtonWidth/2
-    y0, y1 = self.autoTagButtonCoords[1] - self.autoTagButtonHeight/2, self.autoTagButtonCoords[1] + self.autoTagButtonHeight/2
+    drawButton(self, canvas, self.autoTagButtonCoords, self.autoTagButtonWidth, self.autoTagButtonHeight, "auto tag fonts")
+
+def drawSearchButton(self, canvas):
+    drawButton(self, canvas, self.searchButtonCoords, self.searchButtonWidth, self.searchButtonHeight, "search for a font")
+
+def drawButton(self, canvas, coords, width, height, buttonText):
+    x0, x1 = coords[0] - width/2, coords[0] + width/2
+    y0, y1 = coords[1] - height/2, coords[1] + height/2
     canvas.create_rectangle(x0, y0, x1, y1)
-    canvas.create_text(self.autoTagButtonCoords[0],self.autoTagButtonCoords[1], text="auto tag fonts")
+    canvas.create_text(coords[0], coords[1], text=buttonText)
+
 
 # draws the entire font tagger page
 def drawFontTaggerUI(self, canvas):

@@ -61,4 +61,4 @@ class MainApp(App):
         if self.onFontExplorer:
             fe.drawFontExplorerUI(self, canvas)
 
-MainApp(width = 500, height = 500)
+MainApp(width = 500, height = 500, mvcCheck = False)
