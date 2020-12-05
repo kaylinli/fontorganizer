@@ -66,33 +66,56 @@ def initFTvars(self):
     self.backButtonX = self.width/2 - 20
     self.backButtonY = self.height - 10
 
-    self.fontTags = dict()
-    # initializeFontTags(self)
+    self.fontTags = dict() # TODO: link to autofonttagger
+    initializeFontTags(self)
 
 def initializeFontTags(self):
-    file = ""
-    try: # if the file doesn't exist, create one
-        # https://pythonexamples.org/python-count-occurrences-of-word-in-text-file/
-        file = open("fonttags.txt", "x")
-        for font in self.fontNames:
-            file.write(f"{font}: \n")
-    except:
-        file = open("fonttags.txt", "r")
-        data = file.read()
-        for line in file:
-            # example line: "Arial: Sans serif, project1"
-            colonIndex = line.find(":")
-            font = line[:colonIndex]
-            tags = line[colonIndex:].split(", ")
-            for tag in tags:
-                self.fontTags[font] += tag
+    print("reading")
+    file = open("fonttags.txt", "r")
+    # data = file.read()
+    for line in file:
+        # line = file.readline()
+        # example line: "Arial: Sans serif, project1"
+        colonIndex = line.find(":")
+        font = line[:colonIndex]
+        tags = line[colonIndex+2:].split(", ") # colonIndex+2 because of ": "
+        for tag in tags:
+            if font not in self.fontTags:
+                self.fontTags[font] = [tag.strip()]
+            else:
+                self.fontTags[font] += [tag.strip()]
+    
+    # TODO: read font tags from fonttags.txt and load them into self.fontTags
+
+# def initializeFontTags(self):
+#     file = ""
+#     try: # if the file doesn't exist, create one
+#         # https://pythonexamples.org/python-count-occurrences-of-word-in-text-file/
+#         file = open("fonttags.txt", "x")
+#         for font in self.fontNames:
+#             file.write(f"{font}: \n")
+#     except:
+#         file = open("fonttags.txt", "r")
+#         data = file.read()
+#         for line in file:
+#             # example line: "Arial: Sans serif, project1"
+#             colonIndex = line.find(":")
+#             font = line[:colonIndex]
+#             tags = line[colonIndex:].split(", ")
+#             for tag in tags:
+#                 self.fontTags[font] += [tag]
 
 def appStopped(self):
     file = open("fonttags.txt", "w")
     for font in self.fontTags:
         file.write(f"{font}: ")
-        for tag in font:
-            file.write(tag, " ,")
+        for i in range(len(self.fontTags[font])):
+            tag = self.fontTags[font][i]
+            if i == len(self.fontTags[font])-1:
+                file.write(f"{tag}")
+            else:
+                file.write(f"{tag}, ")
+        file.write("\n")
 
 
 '''
@@ -147,8 +170,8 @@ def checkForAutoTagButton(self, event):
     if util.checkIfClickedButton(event.x, event.y, 
                     self.autoTagButtonCoords[0], #cx
                     self.autoTagButtonCoords[1], #cy
-                    self.autoTagButtonWidth, self.autoTagButtonWidth):
-        at.AutoFontTagger(width=150, height=150)
+                    self.autoTagButtonWidth, self.autoTagButtonHeight):
+        autoFontTags = at.AutoFontTagger(width=150, height=150)
 
 def checkForSelectedBoxes(self, event):
     # if they've clicked somewhere within the selected boxes area
