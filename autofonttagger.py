@@ -23,30 +23,36 @@ win32gui.ReleaseDC(hdc, None)
 
 from cmu_112_graphics import *
 import fonttagger as ft
+import utility as util
 
-class AutoFontTagger(App):
+class AutoFontTagger(Mode):
 
     def appStarted(self):
         self.fontNames = fontNames
         self.fontIndex = 0
         self.image = None
         self.hasSerif = False
-        self.timerDelay = 2
-        self.fontTags = dict()
+        self.timerDelay = 1
+        # self.fontTags = dict()
 
     def timerFired(self):
         if self.fontIndex < len(fontNames)-1:
+            util.saveTagsToComputer(self)
             self.fontIndex += 1
         else:
-            App.quit(self)
-        snapshotImage = self.getSnapshot()
-        self.saveSnapshot("n.png")
+            util.saveTagsToComputer(self)
+            self.app.setActiveMode(self.app.fontTagger)
+        snapshotImage = self.app.getSnapshot()
+        self.app.saveSnapshot("n.png")
         font = self.fontNames[self.fontIndex]
-        self.fontTags[font] = [self.fontHasSerif()]
+        if font in self.app.fontTags:
+            self.app.fontTags[font] += [self.fontHasSerif()]
+        else:
+            self.app.fontTags[font] = [self.fontHasSerif()]
         # self.image = self.scaleImage(snapshotImage, 0.4)
     
-    def appStopped(self):
-        return self.fontTags
+    # def appStopped(self):
+    #     return self.fontTags
     
     def fontHasSerif(self):
         if self.fontIndex >= len(fontNames):
@@ -101,7 +107,7 @@ class AutoFontTagger(App):
             return "Serif"
 
     def redrawAll(self, canvas):
-        canvas.create_text(self.width/2, self.width/2, text="N", font=(self.fontNames[self.fontIndex], 100))
+        canvas.create_text(self.width/2, self.width/2, text="N", font=(self.fontNames[self.fontIndex], 200))
 
         # canvas.create_rectangle(50, 100, 250, 500, fill='cyan')
         # if (self.image != None):
