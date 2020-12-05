@@ -12,7 +12,7 @@ from cmu_112_graphics import *
 import splashpage as sp
 import fonttagger as ft
 import fontexplorer as fe
-import houghtransform as ht
+# import houghtransform as ht
 
 def callback(font, tm, fonttype, names):
     names.append(font.lfFaceName)
@@ -41,11 +41,15 @@ class MainApp(App):
             sp.mousePressed(self, event)
         if self.onFontTagger:
             ft.mousePressed(self, event)
+        if self.onFontExplorer:
+            fe.mousePressed(self, event)
         # ht.runHoughTransform(self)
 
     def keyPressed(self, event):
         if self.onFontTagger:
             ft.keyPressed(self, event)
+        if self.onFontExplorer:
+            fe.keyPressed(self, event)
 
     # TODO: add a clear all tags button
     # TODO: add a box for searching for a font

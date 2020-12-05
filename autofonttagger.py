@@ -22,14 +22,17 @@ win32gui.ReleaseDC(hdc, None)
 # above code from https://stackoverflow.com/questions/51256688/python-windows-enum-installed-fonts
 
 from cmu_112_graphics import *
+import fonttagger as ft
 
 class AutoFontTagger(App):
+
     def appStarted(self):
         self.fontNames = fontNames
         self.fontIndex = 0
         self.image = None
         self.hasSerif = False
         self.timerDelay = 2
+        self.fontTags = dict()
 
     def timerFired(self):
         if self.fontIndex < len(fontNames)-1:
@@ -58,6 +61,7 @@ class AutoFontTagger(App):
         else:
             print("Handwriting", self.fontNames[self.fontIndex])
             return "Handwriting"
+
         sortlines = linesP
         sortlines = sortlines.tolist()
 
