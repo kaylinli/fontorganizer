@@ -32,6 +32,8 @@ def initFEvars(self):
     self.searchBarHeight = 20
     self.searchBarCoords = (self.width - 10 - self.searchBarWidth/2,
                                 self.interactionBar)
+    self.isTypingSearch = False
+    self.searchBarInput = ""
 
     createWidgets(self)
 
@@ -69,12 +71,13 @@ def createWidgets(self):
 
 def createTextWidget(self, x0, y0, x1, y1):
     fontIndex = random.randrange(0, len(self.fontNames))
-    self.widgets += [[0, x0, y0, x1, y1, "Click", self.fontNames[fontIndex], 1]]
+    self.widgets += [[0, x0, y0, x1, y1, "Click to edit", self.fontNames[fontIndex], 1]]
 '''
 Controller
 '''
 def mousePressed(self, event):
     checkForSelectedWidget(self, event)
+    checkForClickedSearchBar(self, event)
 
 def checkForSelectedWidget(self, event):
     for i in range(len(self.widgets)):
@@ -86,18 +89,47 @@ def checkForSelectedWidget(self, event):
             return
     # if no widget selected
     self.selectedWidget = -1
-    
+
+def checkForClickedSearchBar(self, event):
+    if util.checkIfClickedButton(event.x, event.y, 
+                                self.searchBarCoords[0], self.searchBarCoords[1], 
+                                self.searchBarWidth, self.searchBarHeight):
+        self.isTypingSearch = True
+    else:
+        self.isTypingSearch = False
+        
 
 def keyPressed(self, event):
+    checkForWidgetInput(self, event)
+
+def checkForSearchInput(self, event):
+    if self.isTypingSearch:
+        print("checking for input")
+        self.searchBarInput = checkForInput(self, event, self.searchBarInput)
+
+def checkForWidgetInput(self, event):
     if self.selectedWidget != -1:
-        widgetText = self.widgets[self.selectedWidget][5]
-        if event.key == "Backspace":
-            widgetText = widgetText[:len(widgetText)-1]
-        elif event.key == "Space":
-            widgetText += " "
-        else:
-            widgetText += event.key 
-        self.widgets[self.selectedWidget][5] = widgetText
+        self.widgets[self.selectedWidget][5] = checkForInput(self, event, 
+                                        self.widgets[self.selectedWidget][5])
+        # widgetText = self.widgets[self.selectedWidget][5]
+        # if event.key == "Backspace":
+        #     widgetText = widgetText[:len(widgetText)-1]
+        # elif event.key == "Space":
+        #     widgetText += " "
+        # else:
+        #     widgetText += event.key 
+        # self.widgets[self.selectedWidget][5] = widgetText
+
+def checkForInput(self, event, text):
+    if event.key == "Backspace":
+        text = text[:len(text)-1]
+    elif event.key == "Space":
+        text += " "
+    else:
+        print("event.key",event.key)
+        text += event.key
+    return text
+    
 '''
 View
 '''
@@ -110,20 +142,25 @@ def drawWidgets(self, canvas):
         widgetText = self.widgets[i][5]
         
         lineWidth = 15
-        lineX = (wx0+wx1)/2
-        lineY = (wy0+wy1)/2 - (widget[7]/2)*lineWidth
+        # lineX = (wx0+wx1)/2
+        # lineY = (wy0+wy1)/2 - (widget[7]/2)*lineWidth
+        lineX = wx0 + 10
+        lineY = wy0 + 10
         index = 0
         lineLength = len(widgetText)
         # create lines of text in widget
-        for line in range(widget[7]):
+        while index < len(widgetText):
             lineText = widgetText[index:lineLength]
             lineY += lineWidth
             tx0, ty0, tx1, ty1 = (canvas.bbox(canvas.create_text(lineX, lineY, 
-                            text=lineText, font=(self.widgets[i][6], 15))))
+                            text=lineText, anchor="w",font=(self.widgets[i][6], 15))))
+            canvas.create_rectangle(tx0, ty0, tx1, ty1)
             if tx1 > wx1:
+                print("over")
                 lineLength -= 1
-                index += lineLength
                 widget[7] += 1
+            index += lineLength
+
         # canvas.create_oval(x0,y0,x1,y1)
         # drawTextWidget(self, canvas, i, widget[1], widget[1], )
 
@@ -140,6 +177,13 @@ def drawSearchBar(self, canvas):
                             self.searchBarCoords[1] - self.searchBarHeight/2,
                             self.searchBarCoords[0] + self.searchBarWidth/2,
                             self.searchBarCoords[1] + self.searchBarHeight/2)
+
+    searchBarText = ""
+    if self.searchBarInput == "" and self.isTypingSearch == False:
+        searchBarText = "search for a font/tag"
+    else:
+        searchBarText = self.searchBarInput
+    canvas.create_text(self.searchBarCoords[0], self.searchBarCoords[1], text=searchBarText)
 
 def drawFontExplorerUI(self, canvas):
     createHeader(self, canvas)
