@@ -45,6 +45,9 @@ class AutoFontTagger(App):
         self.fontTags[font] = [self.fontHasSerif()]
         # self.image = self.scaleImage(snapshotImage, 0.4)
     
+    def appStopped(self):
+        return self.fontTags
+    
     def fontHasSerif(self):
         if self.fontIndex >= len(fontNames):
             return
