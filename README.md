@@ -3,9 +3,9 @@
 A platform for better sorting your fonts. Currently only supported on Windows.
 
 Current features:
+- **!!NEW!!**: Automatic tagging of serif and sans-serif fonts!
 - View the different fonts installed on your computer in their corresponding font face in a compact manner
 - Tag fonts with custom characteristics, such as Sans Serif, Handwriting, etc.
-- **New**: Automatic tagging of serif and sans-serif fonts!
 
 Future features:
 - Sort fonts by characteristics/tags
