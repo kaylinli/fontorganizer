@@ -13,7 +13,7 @@ Future features:
 
 ## How do I run it?
 
-Open main.py in a python code editor or IDE on your Windows machine and run it there. A window should pop up with the application. Because it retrieves font files stored in C:\Windows\Fonts, it will not run in a browser editor or on a non-Windows machine.
+First, ensure that OpenCV Python is installed (if not installed, run ```pip install opencv-python```). Open main.py in a python code editor or IDE on your Windows machine and run it there. A window should pop up with the application. Because it retrieves font files stored in C:\Windows\Fonts, it will not run in a browser editor or on a non-Windows machine.
 
 ## Why is this useful? (and what is lettering/typesetting?)
 
