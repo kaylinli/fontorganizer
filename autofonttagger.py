@@ -58,6 +58,8 @@ class AutoFontTagger(Mode):
     # def appStopped(self):
     #     return self.fontTags
     
+
+    # The code in this function is adapted from https://docs.opencv.org/3.4/d9/db0/tutorial_hough_lines.html
     def fontHasSerif(self):
         if self.fontIndex >= len(fontNames):
             return
