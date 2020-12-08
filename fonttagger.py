@@ -54,7 +54,7 @@ class FontTagger(Mode):
         self.autoTagButtonWidth = 90
         self.autoTagButtonHeight = 20
         self.autoTagButtonCoords = (self.width - 10 - self.autoTagButtonWidth/2,
-                                    self.tagInputCoords[1]/3)
+                                    self.tagInputCoords[1]*(2/3))
 
         self.searchButtonWidth = 90
         self.searchButtonHeight = 20
@@ -257,7 +257,7 @@ class FontTagger(Mode):
         # TODO: make text wrap around if it goes outside box'
         # TODO: allow for Backspace, Enter, Left and Right functionality
         if self.tagInput == "" and self.isTypingTag == False:
-            canvas.create_text(x0+5, y0+3, anchor="nw", text="type tag here")
+            canvas.create_text(x0+5, y0+3, anchor="nw", text="type tag here", fill="grey")
         else: # if self.isTypingTag == True
             canvas.create_text(x0+5, y0+3, anchor="nw", text=f"{self.tagInput}")
 
@@ -268,19 +268,19 @@ class FontTagger(Mode):
         # canvas.create_text(x0+10, y0+10, anchor="center", text="×", font=("Red Hat Display", 14))
 
     def drawTagButton(self, canvas):
-        self.drawButton(canvas, self.tagButtonCoords, self.tagButtonWidth, self.tagButtonHeight, "tag fonts")
+        util.drawButton(self, canvas, self.tagButtonCoords, 
+                        self.tagButtonWidth, self.tagButtonHeight, "tag fonts")
 
     def drawAutoTaggingButton(self, canvas):
-        self.drawButton(canvas, self.autoTagButtonCoords, self.autoTagButtonWidth, self.autoTagButtonHeight, "auto tag fonts")
+        util.drawButton(self, canvas, self.autoTagButtonCoords, 
+                        self.autoTagButtonWidth, self.autoTagButtonHeight, "auto tag fonts")
 
     def drawSearchButton(self, canvas):
-        self.drawButton(canvas, self.searchButtonCoords, self.searchButtonWidth, self.searchButtonHeight, "search for a font")
+        self.drawButton(self, canvas, self.searchButtonCoords, 
+                        self.searchButtonWidth, self.searchButtonHeight, 
+                        "search for a font", fill="grey")
 
-    def drawButton(self, canvas, coords, width, height, buttonText):
-        x0, x1 = coords[0] - width/2, coords[0] + width/2
-        y0, y1 = coords[1] - height/2, coords[1] + height/2
-        canvas.create_rectangle(x0, y0, x1, y1)
-        canvas.create_text(coords[0], coords[1], text=buttonText)
+    
 
 
     # draws the entire font tagger page
