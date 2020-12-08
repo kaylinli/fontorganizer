@@ -21,27 +21,27 @@ class FontExplorer(Mode):
         self.marginLeft = 10
         self.fontNames = self.app.fontNames
 
-
-        self.widgets = []
-        self.selectedWidget = -1
-
-        
-
         self.interactionBar = 65
 
+        self.fontsAndTagsSelected = set()
         
-        self.widgetWidth = 150
-        self.widgetHeight = 100
 
-        self.widgetStartX = self.marginLeft
-        self.widgetStartY = 80
-
-        self.searchBarWidth = 60
+        self.searchBarWidth = 120
         self.searchBarHeight = 20
         self.searchBarCoords = (self.width - 10 - self.searchBarWidth/2,
                                     self.interactionBar)
         self.isTypingSearch = False
         self.searchBarInput = ""
+
+
+        self.widgets = []
+        self.widgetFonts = self.fontNames
+        self.selectedWidget = -1
+
+        self.widgetWidth = 150
+        self.widgetHeight = 100
+        self.widgetStartX = self.marginLeft
+        self.widgetStartY = 80
 
         self.createWidgets()
 
@@ -78,14 +78,14 @@ class FontExplorer(Mode):
 
 
     def createTextWidget(self, x0, y0, x1, y1):
-        fontIndex = random.randrange(0, len(self.fontNames))
-        self.widgets += [[0, x0, y0, x1, y1, "Click to edit", self.fontNames[fontIndex], 1]]
+        fontIndex = random.randrange(0, len(self.widgetFonts))
+        self.widgets += [[0, x0, y0, x1, y1, "Click to edit", self.widgetFonts[fontIndex], 2]]
     '''
     Controller
     '''
     def mousePressed(self, event):
-        self.checkForSelectedWidget(event)
         self.checkForClickedSearchBar(event)
+        self.checkForSelectedWidget(event)
 
     def checkForSelectedWidget(self, event):
         for i in range(len(self.widgets)):
@@ -94,7 +94,9 @@ class FontExplorer(Mode):
             if widget[1] < event.x < widget[3] and \
                     widget[2] < event.y < widget[4]:
                 self.selectedWidget = i
-                return
+                self.app.fontWidgetInfo = widget
+                self.app.setActiveMode(self.app.fontWidget)
+                # return
         # if no widget selected
         self.selectedWidget = -1
 
@@ -103,17 +105,26 @@ class FontExplorer(Mode):
                                     self.searchBarCoords[0], self.searchBarCoords[1], 
                                     self.searchBarWidth, self.searchBarHeight):
             self.isTypingSearch = True
+            return
         else:
             self.isTypingSearch = False
             
 
     def keyPressed(self, event):
         self.checkForWidgetInput( event)
+        self.checkForSearchInput(event)
 
     def checkForSearchInput(self, event):
         if self.isTypingSearch:
-            print("checking for input")
-            self.searchBarInput = util.checkForInput(self, event, self.searchBarInput)
+            if event.key == "Enter":
+                if self.searchBarInput in self.fontNames or \
+                    self.searchBarInput in self.app.fontTags:
+                    self.selectedFontsAndTags.add(self.searchBarInput)
+            else:
+                self.searchBarInput = util.checkForInput(self, event, self.searchBarInput)
+
+    # def addFontsAndTags(self):
+        
 
     def checkForWidgetInput(self, event):
         if self.selectedWidget != -1:
@@ -145,19 +156,27 @@ class FontExplorer(Mode):
             lineX = wx0 + 10
             lineY = wy0 + 10
             index = 0
-            lineLength = len(widgetText)
+            lineLength = len(widgetText) // widget[7]
+            lineNum = 0
             # create lines of text in widget
-            while index < len(widgetText):
+            while lineNum < widget[7]:
+                # lineText = widgetText
+                # canvas.create_text(lineX, lineY, 
+                #                 text=lineText, anchor="w",font=(self.widgets[i][6], 15))
+                # lineY += lineWidth
+                # lineNum += 1
+
                 lineText = widgetText[index:lineLength]
-                lineY += lineWidth
+                # print("widget text", self.widgets[i][5])
                 tx0, ty0, tx1, ty1 = (canvas.bbox(canvas.create_text(lineX, lineY, 
                                 text=lineText, anchor="w",font=(self.widgets[i][6], 15))))
-                canvas.create_rectangle(tx0, ty0, tx1, ty1)
+                # canvas.create_rectangle(tx0, ty0, tx1, ty1)
                 if tx1 > wx1:
-                    print("over")
                     lineLength -= 1
                     widget[7] += 1
                 index += lineLength
+                lineY += lineWidth
+                lineNum += 1
 
             # canvas.create_oval(x0,y0,x1,y1)
             # drawTextWidget(self, canvas, i, widget[1], widget[1], )
@@ -168,7 +187,18 @@ class FontExplorer(Mode):
 
     def createHeader(self, canvas):
         canvas.create_text(self.marginLeft, 30, text="font explorer", anchor="w", font=("Red Hat Display Medium", 24))
+        self.drawTagsSelected(canvas)
         self.drawSearchBar(canvas)
+    
+    def drawTagsSelected(self, canvas):
+        selectionX = self.marginLeft + 100
+        selectionWidth = 50
+        canvas.create_text(self.marginLeft, self.interactionBar, anchor="w", text="tags selected: ")
+        i = 0
+        for tag in self.fontsAndTagsSelected:
+            canvas.create_text(selectionX + i*50, self.interactionBar, anchor="w", text=tag)
+            i += 1
+
 
     def drawSearchBar(self, canvas):
         canvas.create_rectangle(self.searchBarCoords[0] - self.searchBarWidth/2,

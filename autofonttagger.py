@@ -37,6 +37,7 @@ class AutoFontTagger(Mode):
 
     def timerFired(self):
         if self.fontIndex < len(fontNames)-1:
+            # util.saveTagsToComputer(self)
             util.saveTagsToComputer(self)
             self.fontIndex += 1
         else:
@@ -45,10 +46,13 @@ class AutoFontTagger(Mode):
         snapshotImage = self.app.getSnapshot()
         self.app.saveSnapshot("n.png")
         font = self.fontNames[self.fontIndex]
+
+        tag = self.fontHasSerif()
+        # if tag not in self.app.fontTags[font]:
         if font in self.app.fontTags:
-            self.app.fontTags[font] += [self.fontHasSerif()]
+            self.app.fontTags[font] += [tag]
         else:
-            self.app.fontTags[font] = [self.fontHasSerif()]
+            self.app.fontTags[font] = [tag]
         # self.image = self.scaleImage(snapshotImage, 0.4)
     
     # def appStopped(self):
@@ -69,7 +73,7 @@ class AutoFontTagger(Mode):
                 l = linesP[i][0]
                 cv.line(grayscaleEdgesImg, (l[0], l[1]), (l[2], l[3]), (0,0,255), 3, cv.LINE_AA)
         else:
-            print("Handwriting", self.fontNames[self.fontIndex])
+            # print("Handwriting", self.fontNames[self.fontIndex])
             return "Handwriting"
 
         sortlines = linesP
@@ -100,10 +104,10 @@ class AutoFontTagger(Mode):
         croppedLines = cv.HoughLinesP(croppedEdges, 1, math.pi/180, 10, None, 5, 10)
         
         if croppedLines is None:
-            print("Sans serif", self.fontNames[self.fontIndex])
+            # print("Sans serif", self.fontNames[self.fontIndex])
             return "Sans serif"
         else:
-            print("Serif", self.fontNames[self.fontIndex])
+            # print("Serif", self.fontNames[self.fontIndex])
             return "Serif"
 
     def redrawAll(self, canvas):

@@ -13,6 +13,7 @@ import splashpage as sp
 import fonttagger as ft
 import fontexplorer as fe
 import autofonttagger as at
+import fontwidget as fw
 # import houghtransform as ht
 
 def callback(font, tm, fonttype, names):
@@ -35,10 +36,10 @@ class MainApp(ModalApp):
         app.onFontExplorer = False
         
         app.splashPage = sp.SplashPage()
-        print("i'm trying")
         app.fontTagger = ft.FontTagger()
         app.fontExplorer = fe.FontExplorer()
         app.autoFontTagger = at.AutoFontTagger() 
+        app.fontWidget = fw.FontWidget()
 
         app.setActiveMode(app.splashPage)
 

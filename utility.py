@@ -16,7 +16,6 @@ def checkForInput(self, event, text):
     elif event.key == "Space":
         text += " "
     else:
-        print("event.key",event.key)
         text += event.key
     return text
 
@@ -27,9 +26,14 @@ def checkIfClickedButton(clickx, clicky, boundx, boundy, width, height):
     else:
         return False
 
+def drawButton(self, canvas, coords, width, height, buttonText):
+        x0, x1 = coords[0] - width/2, coords[0] + width/2
+        y0, y1 = coords[1] - height/2, coords[1] + height/2
+        canvas.create_rectangle(x0, y0, x1, y1)
+        canvas.create_text(coords[0], coords[1], text=buttonText)
+
 def saveTagsToComputer(self):
     file = open("fonttags.txt", "w")
-    print("hello")
     for font in self.app.fontTags:
         file.write(f"{font}: ")
         for i in range(len(self.app.fontTags[font])):

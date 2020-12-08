@@ -1,3 +1,7 @@
+'''
+This code, from CMU 15-112, is slightly modified to add functionality for saveSnapshot().
+'''
+
 # cmu_112_graphics.py
 # version 0.8.6
 
