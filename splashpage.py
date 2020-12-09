@@ -52,7 +52,7 @@ class SplashPage(Mode):
         if util.checkIfClickedButton(event.x, event.y, 
                         self.fontExplorerBtnCoords[0], self.fontExplorerBtnCoords[1], 
                         self.buttonWidth, self.buttonHeight):
-            self.app.setActiveMode(self.app.fontExplorer)
+            self.app.setActiveMode(self.app.fontBoard)
             # self.onSplashPage = False
             # self.onFontExplorer = True
 
@@ -73,7 +73,7 @@ class SplashPage(Mode):
     def createFontExplorerBtn(self, canvas):
         canvas.create_rectangle(self.fontExplorerBtnX[0], self.fontExplorerBtnY[0],
                                 self.fontExplorerBtnX[1], self.fontExplorerBtnY[1])
-        canvas.create_text(self.fontExplorerBtnCoords[0], self.fontExplorerBtnCoords[1], text="font explorer", font=("Red Hat Display", 15))
+        canvas.create_text(self.fontExplorerBtnCoords[0], self.fontExplorerBtnCoords[1], text="font board", font=("Red Hat Display", 15))
 
     def redrawAll(self, canvas):
     # def drawSplashPageUI(self, canvas):

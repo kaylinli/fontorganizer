@@ -51,6 +51,10 @@ class FontTagger(Mode):
         self.tagButtonCoords = (self.tagInputX[1]+self.tagButtonWidth/2, 
                                 self.tagInputCoords[1])
 
+        self.backButtonDims = (20, 20)
+        self.backButtonCoords = (self.width - 10 - self.backButtonDims[0]/2, 
+                                self.tagInputCoords[1]*(1/3))
+
         self.autoTagButtonWidth = 90
         self.autoTagButtonHeight = 20
         self.autoTagButtonCoords = (self.width - 10 - self.autoTagButtonWidth/2,
@@ -118,13 +122,13 @@ class FontTagger(Mode):
     def mousePressed(self, event):
         # top
         self.checkForTagInput(event)
+        self.checkForBackButton(event)
         self.checkForTagButton(event)
         self.checkForAutoTagButton(event)
         # middle
         self.checkForSelectedBoxes(event)
         # bottom
         self.checkForNavigation(event)
-        
 
     # checks if user has typed in a tag name
     def checkForTagInput(self,event):
@@ -153,6 +157,13 @@ class FontTagger(Mode):
                         self.app.fontTags[font] += [self.tagInput]
                     print(font, self.app.fontTags[font])
             util.saveTagsToComputer(self)
+
+    def checkForBackButton(self, event):
+        if util.checkIfClickedButton(event.x, event.y, 
+                        self.backButtonCoords[0], #cx
+                        self.backButtonCoords[1], #cy
+                        self.backButtonDims[0], self.backButtonDims[1]):
+            self.app.setActiveMode(self.app.splashPage)
 
     def checkForAutoTagButton(self, event):
         if util.checkIfClickedButton(event.x, event.y, 
@@ -250,6 +261,7 @@ class FontTagger(Mode):
         self.drawTagButton(canvas)
         self.drawAutoTaggingButton(canvas)
         self.drawSearchButton(canvas)
+        self.drawBackButton(canvas)
 
     def drawTagInputBox(self, canvas):
         # create box
@@ -268,6 +280,10 @@ class FontTagger(Mode):
     def drawTagButton(self, canvas):
         util.drawButton(self, canvas, self.tagButtonCoords, 
                         self.tagButtonWidth, self.tagButtonHeight, "tag fonts")
+    
+    def drawBackButton(self, canvas):
+        util.drawButton(self, canvas, self.backButtonCoords, 
+                    self.backButtonDims[0], self.backButtonDims[1], "↰")
 
     def drawAutoTaggingButton(self, canvas):
         util.drawButton(self, canvas, self.autoTagButtonCoords, 

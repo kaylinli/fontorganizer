@@ -11,7 +11,7 @@ from cmu_112_graphics import *
 # import other files
 import splashpage as sp
 import fonttagger as ft
-import fontexplorer as fe
+import fontboard as fb
 import autofonttagger as at
 import fontwidget as fw
 # import houghtransform as ht
@@ -31,13 +31,13 @@ class MainApp(ModalApp):
     def appStarted(app):
         app.fontNames = fontNames
         app.fontTags = dict()
-        app.onSplashPage = True
-        app.onFontTagger = False
-        app.onFontExplorer = False
+        # app.onSplashPage = True
+        # app.onFontTagger = False
+        # app.onFontExplorer = False
         
         app.splashPage = sp.SplashPage()
         app.fontTagger = ft.FontTagger()
-        app.fontExplorer = fe.FontExplorer()
+        app.fontBoard = fb.FontBoard()
         app.autoFontTagger = at.AutoFontTagger() 
         app.fontWidget = fw.FontWidget()
 

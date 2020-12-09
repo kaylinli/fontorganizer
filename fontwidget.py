@@ -18,9 +18,10 @@ class FontWidget(Mode):
     def appStarted(self):
         # self.widgetType = self.app.fontWidgetInfo[0]
 
-        self.widgetText = self.app.fontWidgetInfo[5]
+        # self.widgetText = self.app.fontWidgetInfo[5]
+        self.widgetText = "Headline"
         self.fontSize = 24
-        self.widgetFont = self.app.fontWidgetInfo[6]
+        self.widgetFont = self.app.fontWidgetInfo[0][6]
         self.fontWeight = "normal"
 
 
@@ -34,8 +35,8 @@ class FontWidget(Mode):
 
         # button stuffs
         self.buttonDims = (20, 20) #dimensions
-        self.boldButtonCoords = (self.width - 3*self.buttonDims[0], self.buttonDims[1] + 3)
-        self.italicButtonCoords = (self.width - 2*self.buttonDims[0], self.buttonDims[1] + 3)
+        self.boldButtonCoords = (self.width - 4*self.buttonDims[0], self.buttonDims[1] + 3)
+        self.italicButtonCoords = (self.width - 3*self.buttonDims[0], self.buttonDims[1] + 3)
         self.backButtonCoords = (self.width - self.buttonDims[0], self.buttonDims[1] + 3)
 
         self.time = 0
@@ -71,7 +72,7 @@ class FontWidget(Mode):
 
         if util.checkIfClickedButton(event.x, event.y, self.backButtonCoords[0], self.backButtonCoords[1], 
                                     self.buttonDims[0], self.buttonDims[1]):
-            self.app.setActiveMode(self.app.fontExplorer)
+            self.app.setActiveMode(self.app.fontBoard)
         
     def keyPressed(self, event):
         text = self.widgetText
@@ -119,15 +120,16 @@ class FontWidget(Mode):
             averageCharWidth = ((tx1 - tx0) // len(self.widgetText))
         except:
             averageCharWidth = 30
-        self.maxCharsOnLine = self.width // averageCharWidth
+        self.maxCharsOnLine = (self.width // averageCharWidth)-5
         # print("self.maxCharsOnLine", self.maxCharsOnLine)
 
     def drawText(self, canvas):
+        displayText = self.widgetText[:self.textCursorIndex] + "|" + self.widgetText[self.textCursorIndex:]
         canvas.create_rectangle(0, self.textStartY,self.width, self.height)
         numLines = math.ceil(len(self.widgetText)//self.maxCharsOnLine)
         lineWidth = self.fontSize + 5
         for lineNum in range(numLines+1):
-            lineText = self.widgetText[lineNum * self.maxCharsOnLine:(lineNum+1) * self.maxCharsOnLine]
+            lineText = displayText[lineNum * self.maxCharsOnLine:(lineNum+1) * self.maxCharsOnLine]
             # print("lineText",lineText)
             canvas.create_text(0, self.textStartY + lineWidth * lineNum, anchor="nw", 
                                 text=lineText, font=(self.widgetFont,self.fontSize,self.fontWeight))
@@ -139,43 +141,6 @@ class FontWidget(Mode):
         else:
             self.drawText(canvas)
 
-'''
-Scrap code
-'''
 
-
-    # def drawText(self, canvas):
-    #     lineNum = 0
-    #     lineText = self.widgetText[lineNum][:self.lineLength]
-    #     displayText = lineText[:self.textCursorIndex] + "|" + self.widgetText[self.textCursorIndex:]
-    #     canvas.create_rectangle(0,self.textStartY,self.width, self.height)
-
-    #     tx0, ty0, tx1, ty1 = canvas.bbox(canvas.create_text(0,self.textStartY, 
-    #                                     anchor="nw", text=lineText, font=(self.widgetFont,self.fontSize)))
-    #     canvas.create_rectangle(tx0,ty0,tx1,ty1)
-    #     if (tx1>self.width):
-    #         # print("tx1", tx1)
-    #         # print("width", self.width)
-    #         self.widgetText[self.lineIndex] += displayText[-1]
-    #         self.lineIndex += 1
-    #         self.lineLength -= 1
-        
-    #     index = self.lineLength
-    #     lineWidth = self.fontSize + 5
-    #     lineY = self.textStartY + lineWidth
-    #     canvas.create_text(0, lineY, 
-    #                         anchor="nw", text=self.widgetText[self.lineIndex], font=(self.widgetFont,self.fontSize))
-
-
-        # print("lineY", lineY)
-        # while index < len(self.widgetText):
-        #     # print("went into while loop")
-        #     lineText = displayText[index:index + self.lineLength-1]
-        #     print(self.lineLength)
-        #     print("lineText", lineText)
-        #     print("line Y", lineY)
-        #     canvas.create_text(0, lineY, text=lineText, font=(self.widgetFont,self.fontSize))
-        #     index += self.lineLength
-        #     lineY += lineWidth
 
 
