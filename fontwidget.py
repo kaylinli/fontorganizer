@@ -19,18 +19,19 @@ class FontWidget(Mode):
         # self.widgetType = self.app.fontWidgetInfo[0]
 
         # self.widgetText = self.app.fontWidgetInfo[5]
-        self.widgetText = "Headline"
-        self.fontSize = 24
-        self.widgetFont = self.app.fontWidgetInfo[0][6]
-        self.fontWeight = "normal"
+        self.widgetText = ["Headline", "Body Text"]
+        self.fontSize = [24,24]
+        self.widgetFont = [self.app.fontWidgetInfo[0][6], self.app.fontWidgetInfo[1][6]]
+        self.fontWeight = ["normal", "normal"]
 
+        self.activeTextBox = 0
 
         self.textStartY = 40
-        self.averageCharWidth = 30
-        self.maxCharsOnLine = 20
+        self.averageCharWidth = [30, 30]
+        self.maxCharsOnLine = [20, 20]
 
-        self.textCursorIndex = len(self.widgetText)
-        self.lineLength = len(self.widgetText)
+        self.textCursorIndex = len(self.widgetText[0])
+        self.lineLength = len(self.widgetText[0])
         self.lineIndex = 0
 
         # button stuffs
@@ -46,36 +47,39 @@ class FontWidget(Mode):
             self.time += 1
 
     def mousePressed(self, event):
-        self.checkForClickedButton(event)
-    
-
-    def checkForClickedButton(self, event):
+        self.checkForBoldButton(event)
+        self.checkForItalicButton(event)
+        self.checkForBackButton(event)
         
+
+    def checkForBoldButton(self, event):
         if util.checkIfClickedButton(event.x, event.y, self.boldButtonCoords[0], self.boldButtonCoords[1], 
                                     self.buttonDims[0], self.buttonDims[1]):
             # font weight specifications taken from here: https://docs.python.org/3/library/tkinter.font.html
-            if self.fontWeight == "normal":
-                self.fontWeight = "bold"
-            elif self.fontWeight == "italic":
-                self.fontWeight = "bold italic"
+            if self.fontWeight[self.activeTextBox] == "normal":
+                self.fontWeight[self.activeTextBox] = "bold"
+            elif self.fontWeight[self.activeTextBox] == "italic":
+                self.fontWeight[self.activeTextBox] = "bold italic"
             else:
-                self.fontWeight = "normal"
-
+                self.fontWeight[self.activeTextBox] = "normal"
+    
+    def checkForItalicButton(self, event):
         if util.checkIfClickedButton(event.x, event.y, self.italicButtonCoords[0], self.italicButtonCoords[1], 
                                     self.buttonDims[0], self.buttonDims[1]):
-            if self.fontWeight == "normal":
-                self.fontWeight = "italic"
-            elif self.fontWeight == "bold":
-                self.fontWeight = "bold italic"
+            if self.fontWeight[self.activeTextBox] == "normal":
+                self.fontWeight[self.activeTextBox] = "italic"
+            elif self.fontWeight[self.activeTextBox] == "bold":
+                self.fontWeight[self.activeTextBox] = "bold italic"
             else:
-                self.fontWeight = "normal"
-
+                self.fontWeight[self.activeTextBox] = "normal"
+    
+    def checkForBackButton(self, event):
         if util.checkIfClickedButton(event.x, event.y, self.backButtonCoords[0], self.backButtonCoords[1], 
                                     self.buttonDims[0], self.buttonDims[1]):
             self.app.setActiveMode(self.app.fontBoard)
         
     def keyPressed(self, event):
-        text = self.widgetText
+        text = self.widgetText[self.activeTextBox]
         if event.key == "Backspace":
             text = text[:self.textCursorIndex-1]
             self.textCursorIndex -= 1
@@ -86,7 +90,7 @@ class FontWidget(Mode):
             text = text[:self.textCursorIndex] + event.key + text[self.textCursorIndex:]
             self.textCursorIndex += 1
         # text = text[:self.textCursorIndex] + "|" + text[self.textCursorIndex:]
-        self.widgetText= text
+        self.widgetText[self.activeTextBox] = text
         self.lineLength = len(text)
         # print("self.widgetText", self.widgetText)
 
@@ -98,7 +102,7 @@ class FontWidget(Mode):
         
 
     def drawFontName(self, canvas):
-        canvas.create_text(0, 0, anchor="nw", text=self.widgetFont, font=("Red Hat Display", 24))
+        canvas.create_text(0, 0, anchor="nw", text=f"{self.widgetFont[0]}, {self.widgetFont[1]}", font=("Red Hat Display", 20))
 
     def drawBoldButton(self, canvas):
         util.drawButton(self, canvas, self.boldButtonCoords, 
@@ -113,29 +117,34 @@ class FontWidget(Mode):
                     self.buttonDims[0], self.buttonDims[1], "↰")
     
     def drawInitialText(self, canvas):
-        canvas.create_rectangle(0, self.textStartY,self.width, self.height)
+        canvas.create_rectangle(0, self.textStartY, self.width, self.height)
+        print("yo")
+        fontName = self.widgetFont[0]
+        fontSize = self.fontSize[0]
         tx0, ty0, tx1, ty1 = canvas.bbox(canvas.create_text(0, self.textStartY, anchor="nw", 
-                                        text=self.widgetText, font=(self.widgetFont,self.fontSize)))
-        try:
-            averageCharWidth = ((tx1 - tx0) // len(self.widgetText))
-        except:
-            averageCharWidth = 30
+                                        text=self.widgetText[0], font=(fontName, fontSize)))
+        # try:
+        averageCharWidth = ((tx1 - tx0) // len(self.widgetText[0]))
+        # except:
+            # averageCharWidth = 30
         self.maxCharsOnLine = (self.width // averageCharWidth)-5
         # print("self.maxCharsOnLine", self.maxCharsOnLine)
 
     def drawText(self, canvas):
-        displayText = self.widgetText[:self.textCursorIndex] + "|" + self.widgetText[self.textCursorIndex:]
-        canvas.create_rectangle(0, self.textStartY,self.width, self.height)
-        numLines = math.ceil(len(self.widgetText)//self.maxCharsOnLine)
-        lineWidth = self.fontSize + 5
+        text0 = self.widgetText[0]
+        displayText = text0[:self.textCursorIndex] + "|" + text0[self.textCursorIndex:]
+        numLines = math.ceil(len(self.widgetText[0])//self.maxCharsOnLine)
+        lineWidth = self.fontSize[0] + 5
         for lineNum in range(numLines+1):
             lineText = displayText[lineNum * self.maxCharsOnLine:(lineNum+1) * self.maxCharsOnLine]
             # print("lineText",lineText)
             canvas.create_text(0, self.textStartY + lineWidth * lineNum, anchor="nw", 
-                                text=lineText, font=(self.widgetFont,self.fontSize,self.fontWeight))
+                                text=lineText, font=(self.widgetFont[0],self.fontSize[0],self.fontWeight[0]))
 
     def redrawAll(self, canvas):
         self.drawMenuBar(canvas)
+        # rectangle for textbox
+        canvas.create_rectangle(0, self.textStartY,self.width, self.height)
         if self.time <= 0:
             self.drawInitialText(canvas)
         else:

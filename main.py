@@ -41,9 +41,26 @@ class MainApp(ModalApp):
         app.autoFontTagger = at.AutoFontTagger() 
         app.fontWidget = fw.FontWidget()
 
+        app.initializeFontTags()
+
         app.setActiveMode(app.splashPage)
 
-
+    def initializeFontTags(app):
+        print("reading")
+        file = open("fonttags.txt", "r")
+        # data = file.read()
+        for line in file:
+            # line = file.readline()
+            # example line: "Arial: Sans serif, project1"
+            colonIndex = line.find(":")
+            font = line[:colonIndex]
+            tags = line[colonIndex+2:].split(", ") # colonIndex+2 because of ": "
+            for tag in tags:
+                # print("tag.strip()",repr(tag.strip()))
+                if font not in app.fontTags:
+                    app.fontTags[font] = [tag.strip()]
+                else:
+                    app.fontTags[font] += [tag.strip()]
         
     #     sp.initSPvars(self)
     #     ft.initFTvars(self)

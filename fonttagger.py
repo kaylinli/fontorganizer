@@ -74,26 +74,9 @@ class FontTagger(Mode):
         self.backButtonX = self.width/2 - 20
         self.backButtonY = self.height - 10
 
-        # self.fontTags = dict()  TODO: link to autofonttagger
-        self.initializeFontTags()
+        # self.initializeFontTags()d
 
-    def initializeFontTags(self):
-        print("reading")
-        file = open("fonttags.txt", "r")
-        # data = file.read()
-        for line in file:
-            # line = file.readline()
-            # example line: "Arial: Sans serif, project1"
-            colonIndex = line.find(":")
-            font = line[:colonIndex]
-            tags = line[colonIndex+2:].split(", ") # colonIndex+2 because of ": "
-            for tag in tags:
-                if font not in self.app.fontTags:
-                    self.app.fontTags[font] = [tag.strip()]
-                else:
-                    self.app.fontTags[font] += [tag.strip()]
-        
-        # TODO: read font tags from fonttags.txt and load them into self.app.fontTags
+    
 
     # def initializeFontTags(self):
     #     file = ""

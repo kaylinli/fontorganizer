@@ -37,7 +37,7 @@ def saveTagsToComputer(self):
     for font in self.app.fontTags:
         file.write(f"{font}: ")
         for i in range(len(self.app.fontTags[font])):
-            tag = self.app.fontTags[font][i]
+            tag = self.app.fontTags[font][i].lower()
             if i == len(self.app.fontTags[font])-1:
                 file.write(f"{tag}")
             else:

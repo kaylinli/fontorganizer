@@ -19,8 +19,8 @@ class FontBoard(Mode):
     def appStarted(self):
     # def initFEvars(self):
         # list of widgets in the format 
-        #           0           1  2   3   4      5         6       7
-        # [boolForWidgetType, x0, y0, x1, y1, widgetText, font1, font2]
+        #           0           1  2   3   4      5         6       8
+        # [boolForWidgetType, x0, y0, x1, y1, widgetText, font, fontSize]
 
         self.marginLeft = 10
         self.fontNames = self.app.fontNames
@@ -34,7 +34,8 @@ class FontBoard(Mode):
                                     self.interactionBar)
         self.isTypingSearch = False
         self.searchBarInput = ""
-
+        self.selectedFontsAndTags = set()
+        self.relatedFonts = []
 
         self.widgets = []
         self.widgetFonts = self.fontNames
@@ -45,8 +46,10 @@ class FontBoard(Mode):
         self.widgetStartY = 80
 
         self.app.fontWidgetInfo = [[],[]]
-
+        
+        self.findAllRelatedFonts()
         self.createWidgets()
+        
 
     def createWidgets(self):
         # width = random.randrange(100,200)
@@ -81,10 +84,19 @@ class FontBoard(Mode):
 
 
     def createTextWidget(self, x0, y0, x1, y1):
-        fontIndex = random.randrange(0, len(self.widgetFonts))
-        font = random.randrange(0, len(self.widgetFonts))
-        font = self.widgetFonts[fontIndex]
-        self.widgets += [[0, x0, y0, x1, y1, "nw", font]]
+        if len(self.selectedFontsAndTags) > 0:
+            font = random.choice(self.relatedFonts)
+        else:
+            font = random.choice(self.widgetFonts)
+        self.widgets += [[0, x0, y0, x1, y1, "Hello", font, 15]]
+    
+    def findAllRelatedFonts(self):
+        print("hello")
+        for tag in self.selectedFontsAndTags:
+            for font in self.fontTags:
+                if tag in self.fontTags[font]:
+                    self.relatedFonts += font
+
     '''
     Controller
     '''
@@ -106,9 +118,10 @@ class FontBoard(Mode):
                     self.app.fontWidgetInfo[1] = widget
                 if (self.selectedWidget[0] != -1 and self.selectedWidget[1] != -1):
                     self.app.setActiveMode(self.app.fontWidget)
+                    self.selectedWidget = [-1,-1]
                 # return
         # if no widget selected
-        # self.selectedWidget
+        
 
     def checkForClickedSearchBar(self, event):
         if util.checkIfClickedButton(event.x, event.y, 
@@ -127,9 +140,12 @@ class FontBoard(Mode):
     def checkForSearchInput(self, event):
         if self.isTypingSearch:
             if event.key == "Enter":
-                if self.searchBarInput in self.fontNames or \
-                    self.searchBarInput in self.app.fontTags:
-                    self.selectedFontsAndTags.add(self.searchBarInput)
+                for value in self.app.fontTags.values():
+                    if self.searchBarInput.lower().strip() in value:
+                        self.selectedFontsAndTags.add(self.searchBarInput.lower().strip())
+                        print(self.selectedFontsAndTags)
+                        self.widgets = []
+                        self.createWidgets()
             else:
                 self.searchBarInput = util.checkForInput(self, event, self.searchBarInput)
         
@@ -155,9 +171,13 @@ class FontBoard(Mode):
         for i in range(len(self.widgets)):
             widget = self.widgets[i]
             wx0, wy0, wx1, wy1 = widget[1], widget[2], widget[3], widget[4]
-            canvas.create_rectangle(wx0, wy0, wx1, wy1)
+            # canvas.create_rectangle(wx0, wy0, wx1, wy1)
             # widgetText = self.widgets[i][5]
-            canvas.create_text(wx0 + 20, wy0 + 20, text=self.widgets[i][6], anchor="w",font=(self.widgets[i][6], 15))
+            fontName = self.widgets[i][6]
+            fontSize = self.widgets[i][7]
+            tx0, ty0, tx1, ty1 = canvas.bbox(canvas.create_text(wx0 + 10, wy0 + 10, 
+                                    text=self.widgets[i][6], anchor="nw",font=(fontName, fontSize)))
+            # TODO: cut off text if it goes beyond widget boundaries
             
             # lineWidth = 15
             # # lineX = (wx0+wx1)/2
@@ -204,7 +224,7 @@ class FontBoard(Mode):
         selectionWidth = 50
         canvas.create_text(self.marginLeft, self.interactionBar, anchor="w", text="tags selected: ")
         i = 0
-        for tag in self.fontsAndTagsSelected:
+        for tag in self.selectedFontsAndTags:
             canvas.create_text(selectionX + i*50, self.interactionBar, anchor="w", text=tag)
             i += 1
 
