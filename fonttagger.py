@@ -1,5 +1,7 @@
 '''
-This code is written by Kaylin Li. 
+File: fonttagger.py
+Author: Kaylin Li
+Purpose: creates interface for tagging fonts with attributes
 All code not written by Kaylin is credited next to the corresponding section.
 '''
 

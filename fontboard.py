@@ -1,5 +1,7 @@
 '''
-This code is written by Kaylin Li. 
+File: fontboard.py
+Author: Kaylin Li
+Purpose: creates interface for constructing a font board
 All code not written by Kaylin is credited next to the corresponding section.
 '''
 import win32gui
@@ -28,6 +30,11 @@ class FontBoard(Mode):
         self.interactionBar = 65
 
         self.fontsAndTagsSelected = set()
+
+        self.boardButtonDims = (90, 20) # dimensions of button
+        self.boardButtonCoords = (self.width - 10 - self.boardButtonDims[0]/2,
+                                    self.interactionBar*(2/3))
+
         self.searchBarWidth = 120
         self.searchBarHeight = 20
         self.searchBarCoords = (self.width - 10 - self.searchBarWidth/2,
@@ -91,7 +98,6 @@ class FontBoard(Mode):
         self.widgets += [[0, x0, y0, x1, y1, "Hello", font, 15]]
     
     def findAllRelatedFonts(self):
-        print("hello")
         for tag in self.selectedFontsAndTags:
             for font in self.fontTags:
                 if tag in self.fontTags[font]:
@@ -101,8 +107,15 @@ class FontBoard(Mode):
     Controller
     '''
     def mousePressed(self, event):
+        self.checkForClickedBoardButton(event)
         self.checkForClickedSearchBar(event)
         self.checkForSelectedWidget(event)
+
+    def checkForClickedBoardButton(self, event):
+        if util.checkIfClickedButton(event.x, event.y, 
+                                    self.boardButtonCoords[0], self.boardButtonCoords[1], 
+                                    self.boardButtonDims[0], self.boardButtonDims[1]):
+            self.app.setActiveMode(self.app.Board)
 
     def checkForSelectedWidget(self, event):
         for i in range(len(self.widgets)):
@@ -118,6 +131,7 @@ class FontBoard(Mode):
                     self.app.fontWidgetInfo[1] = widget
                 if (self.selectedWidget[0] != -1 and self.selectedWidget[1] != -1):
                     self.app.setActiveMode(self.app.fontWidget)
+                    self.app.fontWidget.appStarted()
                     self.selectedWidget = [-1,-1]
                 # return
         # if no widget selected
@@ -154,14 +168,6 @@ class FontBoard(Mode):
         if self.selectedWidget != -1:
             self.widgets[self.selectedWidget][5] = util.checkForInput(self, event, 
                                             self.widgets[self.selectedWidget][5])
-            # widgetText = self.widgets[self.selectedWidget][5]
-            # if event.key == "Backspace":
-            #     widgetText = widgetText[:len(widgetText)-1]
-            # elif event.key == "Space":
-            #     widgetText += " "
-            # else:
-            #     widgetText += event.key 
-            # self.widgets[self.selectedWidget][5] = widgetText
         
     '''
     View
@@ -177,46 +183,11 @@ class FontBoard(Mode):
             fontSize = self.widgets[i][7]
             tx0, ty0, tx1, ty1 = canvas.bbox(canvas.create_text(wx0 + 10, wy0 + 10, 
                                     text=self.widgets[i][6], anchor="nw",font=(fontName, fontSize)))
-            # TODO: cut off text if it goes beyond widget boundaries
-            
-            # lineWidth = 15
-            # # lineX = (wx0+wx1)/2
-            # # lineY = (wy0+wy1)/2 - (widget[7]/2)*lineWidth
-            # lineX = wx0 + 10
-            # lineY = wy0 + 10
-            # index = 0
-            # lineLength = len(widgetText) // widget[7]
-            # lineNum = 0
-            # # create lines of text in widget
-            # while lineNum < widget[7]:
-            #     # lineText = widgetText
-            #     # canvas.create_text(lineX, lineY, 
-            #     #                 text=lineText, anchor="w",font=(self.widgets[i][6], 15))
-            #     # lineY += lineWidth
-            #     # lineNum += 1
-
-            #     lineText = widgetText[index:lineLength]
-            #     # print("widget text", self.widgets[i][5])
-            #     tx0, ty0, tx1, ty1 = (canvas.bbox(canvas.create_text(lineX, lineY, 
-            #                     text=lineText, anchor="w",font=(self.widgets[i][6], 15))))
-            #     # canvas.create_rectangle(tx0, ty0, tx1, ty1)
-            #     if tx1 > wx1:
-            #         lineLength -= 1
-            #         widget[7] += 1
-            #     index += lineLength
-            #     lineY += lineWidth
-            #     lineNum += 1
-
-            # canvas.create_oval(x0,y0,x1,y1)
-            # drawTextWidget(self, canvas, i, widget[1], widget[1], )
-
-    # def drawTextWidget(self, canvas, widgetNum, x0, y0, x1, y1):
-    #     canvas.create_rectangle(x0, y0, x1, y1)
-    #     canvas.create_text((x0+x1)/2, (y0+y1)/2, text=self.widgets[widgetNum][5])
 
     def createHeader(self, canvas):
         canvas.create_text(self.marginLeft, 30, text="font board", anchor="w", font=("Red Hat Display Medium", 24))
         self.drawTagsSelected(canvas)
+        self.drawBoardButton(canvas)
         self.drawSearchBar(canvas)
     
     def drawTagsSelected(self, canvas):
@@ -228,6 +199,9 @@ class FontBoard(Mode):
             canvas.create_text(selectionX + i*50, self.interactionBar, anchor="w", text=tag)
             i += 1
 
+    def drawBoardButton(self, canvas):
+        util.drawButton(self, canvas, self.boardButtonCoords, 
+                        self.boardButtonDims[0], self.boardButtonDims[1], "see font board")
 
     def drawSearchBar(self, canvas):
         canvas.create_rectangle(self.searchBarCoords[0] - self.searchBarWidth/2,
@@ -237,7 +211,7 @@ class FontBoard(Mode):
 
         searchBarText = ""
         if self.searchBarInput == "" and self.isTypingSearch == False:
-            searchBarText = "search for a font/tag"
+            searchBarText = "search for a font/tag and press Enter"
         else:
             searchBarText = self.searchBarInput
         canvas.create_text(self.searchBarCoords[0], self.searchBarCoords[1], text=searchBarText)

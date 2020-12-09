@@ -1,5 +1,7 @@
 '''
-This code is written by Kaylin Li. 
+File: main.py
+Author: Kaylin Li
+Purpose: runs the entire application
 All code not written by Kaylin is credited next to the corresponding section.
 '''
 
@@ -14,6 +16,7 @@ import fonttagger as ft
 import fontboard as fb
 import autofonttagger as at
 import fontwidget as fw
+import board as b
 # import houghtransform as ht
 
 def callback(font, tm, fonttype, names):
@@ -37,7 +40,8 @@ class MainApp(ModalApp):
         
         app.splashPage = sp.SplashPage()
         app.fontTagger = ft.FontTagger()
-        app.fontBoard = fb.FontBoard()
+        app.fontBoard = fb.FontBoard() # interface for constructing a font board
+        app.Board = b.Board() # actually displays font board
         app.autoFontTagger = at.AutoFontTagger() 
         app.fontWidget = fw.FontWidget()
 

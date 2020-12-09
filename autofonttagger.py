@@ -1,3 +1,9 @@
+'''
+File: autofonttagger.py
+Author: Kaylin Li
+Purpose: displays mode that automatically tags font displayed as either serif, sans serif, or handwriting
+All code not written by Kaylin is credited next to the corresponding section.
+'''
 import sys
 import math
 import cv2 as cv

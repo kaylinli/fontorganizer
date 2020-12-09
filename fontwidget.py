@@ -1,5 +1,7 @@
 '''
-This code is written by Kaylin Li. 
+File: fontwidget.py
+Author: Kaylin Li
+Purpose: creates a text-editor interface with the selected fonts from fontboard.py
 All code not written by Kaylin is credited next to the corresponding section.
 '''
 
@@ -36,6 +38,7 @@ class FontWidget(Mode):
 
         # button stuffs
         self.buttonDims = (20, 20) #dimensions
+        self.saveButtonCoords = (self.width - 6*self.buttonDims[0], self.buttonDims[1] + 3)
         self.boldButtonCoords = (self.width - 4*self.buttonDims[0], self.buttonDims[1] + 3)
         self.italicButtonCoords = (self.width - 3*self.buttonDims[0], self.buttonDims[1] + 3)
         self.backButtonCoords = (self.width - self.buttonDims[0], self.buttonDims[1] + 3)
@@ -50,6 +53,14 @@ class FontWidget(Mode):
         self.checkForBoldButton(event)
         self.checkForItalicButton(event)
         self.checkForBackButton(event)
+        self.checkForSaveButton(event)
+    
+    def checkForSaveButton(self, event):
+        if util.checkIfClickedButton(event.x, event.y, self.saveButtonCoords[0], self.saveButtonCoords[1], 
+                                    self.buttonDims[0], self.buttonDims[1]):
+            filename = self.widgetFont[0] + "and" + self.widgetFont[1]
+            filename.replace(" ", "")
+            self.app.saveSnapshot(f"fontboard/{filename}.png")
         
 
     def checkForBoldButton(self, event):
@@ -96,6 +107,7 @@ class FontWidget(Mode):
 
     def drawMenuBar(self, canvas):
         self.drawFontName(canvas)
+        self.drawSaveButton(canvas)
         self.drawBoldButton(canvas)
         self.drawItalicButton(canvas)
         self.drawBackButton(canvas)
@@ -103,6 +115,10 @@ class FontWidget(Mode):
 
     def drawFontName(self, canvas):
         canvas.create_text(0, 0, anchor="nw", text=f"{self.widgetFont[0]}, {self.widgetFont[1]}", font=("Red Hat Display", 20))
+
+    def drawSaveButton(self, canvas):
+        util.drawButton(self, canvas, self.saveButtonCoords, 
+                    self.buttonDims[0], self.buttonDims[1], "Save")
 
     def drawBoldButton(self, canvas):
         util.drawButton(self, canvas, self.boldButtonCoords, 
