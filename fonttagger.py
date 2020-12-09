@@ -224,11 +224,15 @@ class FontTagger(Mode):
         # create text with font name
         tx0, ty0, tx1, ty1 = canvas.bbox(canvas.create_text(self.entryMarginLeft, currentHeight, anchor='w', 
                             text=f'{fontFamily}', font=fontType))
+
+        px1 = tx1 + 10
         if fontFamily in self.app.fontTags:
             for i in range(len(self.app.fontTags[fontFamily])):
                 tag = self.app.fontTags[fontFamily][i]
-                canvas.create_text(tx1 + 10 + 50*i, currentHeight, anchor='w', 
-                            text=tag)
+                px0, py0, px1, py1 = canvas.bbox(canvas.create_text(px1+20, currentHeight, anchor='w', 
+                            text=tag, fill="grey"))
+                canvas.create_rectangle(px0, py0, px1, py1)
+        
 
     def createNavigationButtons(self,canvas):
         # TODO: add buttons to jump to a page, or have  |<| |1| |2| ... |20| |>| 
@@ -261,12 +265,6 @@ class FontTagger(Mode):
         else: # if self.isTypingTag == True
             canvas.create_text(x0+5, y0+3, anchor="nw", text=f"{self.tagInput}")
 
-        # create clear button
-        # x0, x1 = self.tagInputX[1]+10, self.tagInputX[1]+30
-        # y0, y1 = self.tagInputY[0], self.tagInputY[0]+20
-        # canvas.create_rectangle(x0, y0, x1, y1)
-        # canvas.create_text(x0+10, y0+10, anchor="center", text="×", font=("Red Hat Display", 14))
-
     def drawTagButton(self, canvas):
         util.drawButton(self, canvas, self.tagButtonCoords, 
                         self.tagButtonWidth, self.tagButtonHeight, "tag fonts")
@@ -276,9 +274,9 @@ class FontTagger(Mode):
                         self.autoTagButtonWidth, self.autoTagButtonHeight, "auto tag fonts")
 
     def drawSearchButton(self, canvas):
-        self.drawButton(self, canvas, self.searchButtonCoords, 
+        util.drawButton(self, canvas, self.searchButtonCoords, 
                         self.searchButtonWidth, self.searchButtonHeight, 
-                        "search for a font", fill="grey")
+                        "search for a font")
 
     
 
