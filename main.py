@@ -25,7 +25,7 @@ hdc = win32gui.GetDC(None)
 win32gui.EnumFontFamilies(hdc, None, callback, fontNames)
 fontNames = sorted(fontNames)
 win32gui.ReleaseDC(hdc, None)
-# above code from https://stackoverflow.com/questions/51256688/python-windows-enum-installed-fonts
+# above code taken from https://stackoverflow.com/questions/51256688/python-windows-enum-installed-fonts
 
 class MainApp(ModalApp):
     def appStarted(app):
