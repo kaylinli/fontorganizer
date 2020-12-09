@@ -19,7 +19,7 @@ win32gui.EnumFontFamilies(hdc, None, callback, fontNames)
 fontNames = sorted(fontNames)
 # print(fontNames)
 win32gui.ReleaseDC(hdc, None)
-# above code from https://stackoverflow.com/questions/51256688/python-windows-enum-installed-fonts
+# the above code is from https://stackoverflow.com/questions/51256688/python-windows-enum-installed-fonts
 
 from cmu_112_graphics import *
 import fonttagger as ft
@@ -59,7 +59,7 @@ class AutoFontTagger(Mode):
     #     return self.fontTags
     
 
-    # The code in this function is adapted from https://docs.opencv.org/3.4/d9/db0/tutorial_hough_lines.html
+    # The code in this function is heavily modified from https://docs.opencv.org/3.4/d9/db0/tutorial_hough_lines.html
     def fontHasSerif(self):
         if self.fontIndex >= len(fontNames):
             return
@@ -97,6 +97,7 @@ class AutoFontTagger(Mode):
                 minY = y2
                 otherY = y1
                 minIndex = i
+                
         croppedEdges = edges[:, 0:minX]
         try:
             croppedImg = cv.cvtColor(croppedEdges, cv.COLOR_GRAY2BGR)
